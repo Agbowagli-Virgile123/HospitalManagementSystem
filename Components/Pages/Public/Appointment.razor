@@ -1,0 +1,340 @@
+﻿@page "/appointment"
+@layout HospitalManagementSystem.Components.Layout.PublicLayout
+
+<PageTitle>Book Appointment</PageTitle>
+
+<style>
+    .appointment-header {
+        background: linear-gradient(135deg,#0d6efd,#0dcaf0);
+        color: white;
+        padding: 80px 0;
+    }
+
+    .appointment-info {
+        background: #0d6efd;
+        color: white;
+        border-radius: 20px;
+        padding: 40px;
+        height: 100%;
+    }
+
+    .info-item {
+        margin-bottom: 20px;
+        font-size: 1.05rem;
+    }
+
+        .info-item i {
+            color: #20c997;
+            margin-right: 10px;
+        }
+
+    .card {
+        border-radius: 20px;
+    }
+
+    .form-control,
+    .form-select {
+        height: 50px;
+        border-radius: 10px;
+    }
+
+    textarea.form-control {
+        height: auto;
+    }
+
+
+</style>
+
+
+<section class="appointment-header">
+
+    <div class="container text-center">
+
+        <h1 class="fw-bold">
+
+            Schedule an Appointment
+
+        </h1>
+
+        <p class="lead">
+
+            Book an appointment with one of our qualified healthcare professionals.
+
+        </p>
+
+    </div>
+
+</section>
+
+<section class="py-5">
+
+    <div class="container">
+
+        <div class="row g-5">
+
+            <!-- LEFT -->
+
+            <div class="col-lg-4">
+
+                <div class="appointment-info">
+
+                    <h3 class="fw-bold mb-4">
+
+                        Why Choose MedCare?
+
+                    </h3>
+
+                    <div class="info-item">
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                        Experienced Doctors
+
+                    </div>
+
+                    <div class="info-item">
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                        Modern Medical Equipment
+
+                    </div>
+
+                    <div class="info-item">
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                        Friendly Healthcare Staff
+
+                    </div>
+
+                    <div class="info-item">
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                        Easy Appointment Scheduling
+
+                    </div>
+
+                    <hr>
+
+                    <div class="mt-4">
+
+                        <h5>
+
+                            Need Help?
+
+                        </h5>
+
+                        <p>
+
+                            <i class="bi bi-telephone-fill me-2"></i>
+
+                            +233 XX XXX XXXX
+
+                        </p>
+
+                        <p>
+
+                            <i class="bi bi-envelope-fill me-2"></i>
+
+                            info@medcare.com
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- RIGHT -->
+
+            <div class="col-lg-8">
+
+                <div class="card shadow border-0">
+
+                    <div class="card-body p-5">
+
+                        <h3 class="mb-4">
+
+                            Appointment Details
+
+                        </h3>
+
+                        <form>
+
+                            <div class="row">
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+
+                                        First Name
+
+                                    </label>
+
+                                    <TextInput @bind-Value="s" class="form-control"/>
+
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+
+                                        Last Name
+
+                                    </label>
+
+                                    <TextInput @bind-Value="s" class="form-control"/>
+
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+
+                                        Gender
+
+                                    </label>
+
+                                    <select class="form-select" @bind="s">
+
+                                        <option>Male</option>
+
+                                        <option>Female</option>
+
+                                    </select>
+
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+
+                                        Date of Birth
+
+                                    </label>
+
+                                    <DateInput TValue="DateTime" @bind-Value="date" class="form-control" />
+
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+
+                                        Phone
+
+                                    </label>
+
+                                    <TextInput @bind-Value="s" class="form-control"/>
+
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+
+                                        Email
+
+                                    </label>
+
+                                    <TextInput @bind-Value="s" class="form-control"/>
+
+                                </div>
+
+                                <div class="col-12 mb-3">
+
+                                    <label class="form-label">
+
+                                        Address
+
+                                    </label>
+
+                                    <TextInput @bind-Value="s" class="form-control"/>
+
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+
+                                        Doctor
+
+                                    </label>
+
+                                    <select class="form-select">
+
+                                        <option>Select Doctor</option>
+
+                                    </select>
+
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+
+                                        Appointment Date
+
+                                    </label>
+
+                                    <DateInput TValue="DateTime" @bind-Value="date" class="form-control" />
+
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+
+                                        Appointment Time
+
+                                    </label>
+
+                                    <TimeInput TValue="TimeOnly" @bind-Value="time" class="form-control" />
+
+                                </div>
+
+                                <div class="col-12 mb-4">
+
+                                    <label class="form-label">
+
+                                        Reason
+
+                                    </label>
+
+                                    <InputTextArea class="form-control" @bind-Value="s"
+                                                   rows="4"/>
+
+                                </div>
+
+                            </div>
+
+                            <button class="btn btn-primary btn-lg w-100" style="border-radius: 50px;height: 55px;">
+
+                                <i class="bi bi-calendar-check me-2"></i>
+
+                                Book Appointment
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+@code{
+    DateTime date = DateTime.Now;
+    TimeOnly time = TimeOnly.FromDateTime(DateTime.Now);
+    string s = string.Empty;
+}

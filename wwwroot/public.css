@@ -1,0 +1,45 @@
+﻿.public-layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+    .public-layout main {
+        flex: 1;
+    }
+
+.navbar-brand {
+    font-size: 1.4rem;
+}
+
+.nav-link {
+    font-weight: 500;
+    transition: .3s;
+}
+
+    .nav-link:hover {
+        color: #0d6efd !important;
+    }
+
+.btn-primary {
+    border-radius: 50px;
+    padding: 10px 22px;
+}
+
+footer {
+    margin-top: auto;
+}
+
+    footer h5 {
+        font-weight: 700;
+    }
+
+    footer a:hover {
+        color: #0d6efd !important;
+    }
+
+
+
+
+
+/*    Home Style*/
