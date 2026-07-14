@@ -1,6 +1,10 @@
 ﻿@page "/dashboard"
 @using HospitalManagementSystem.Components.Shared
+@using HospitalManagementSystem.Models.Appointment
+@using HospitalManagementSystem.Models.Dashboard
 @layout HospitalManagementSystem.Components.Layout.MainLayout
+@inject HospitalManagementSystem.Interfaces.IDashboard dashboardService
+@inject HospitalManagementSystem.Services.IAppointmentService appointmentService
 
 <style>
     .dashboard-card {
@@ -60,7 +64,7 @@
                             </small>
 
                             <h2 class="fw-bold mt-2">
-                                12
+                                @summary.TotalDoctors
                             </h2>
 
                         </div>
@@ -94,7 +98,7 @@
                             </small>
 
                             <h2 class="fw-bold mt-2">
-                                258
+                                @summary.TotalPatients
                             </h2>
 
                         </div>
@@ -128,7 +132,7 @@
                             </small>
 
                             <h2 class="fw-bold mt-2">
-                                42
+                                @summary.TotalAppointments
                             </h2>
 
                         </div>
@@ -162,7 +166,7 @@
                             </small>
 
                             <h2 class="fw-bold mt-2">
-                                GHS 12,500
+                                @summary.TotalRevenue.ToString("N2")
                             </h2>
 
                         </div>
@@ -194,7 +198,7 @@
                 <div class="card-body text-center">
 
                     <h4 class="text-primary fw-bold">
-                        10
+                        @summary.TodayAppointments
                     </h4>
 
                     <div>Today's Appointments</div>
@@ -212,7 +216,7 @@
                 <div class="card-body text-center">
 
                     <h4 class="text-warning fw-bold">
-                        5
+                       @summary.PendingAppointments
                     </h4>
 
                     <div>Pending</div>
@@ -230,7 +234,7 @@
                 <div class="card-body text-center">
 
                     <h4 class="text-success fw-bold">
-                        18
+                        @summary.CompletedAppointments
                     </h4>
 
                     <div>Completed</div>
@@ -248,7 +252,7 @@
                 <div class="card-body text-center">
 
                     <h4 class="text-danger fw-bold">
-                        2
+                       @summary.CancelledAppointments
                     </h4>
 
                     <div>Cancelled</div>
@@ -303,59 +307,46 @@
 
                         <tbody>
 
-                            <tr>
+                            @if (recentAppointments.Any())
+                            {
+                                
+                                @foreach (var appointment in recentAppointments)
+                            {
+                                <tr>
+                                    <td>@appointment.PatientName</td>
+                                    <td>@appointment.DoctorName</td>
+                                    <td>@appointment.Date</td>
+                                    <td>@appointment.Time</td>
+                                    <td>
+                                        @if (appointment.Status == "Pending")
+                                        {
+                                            <span class="badge bg-warning">
+                                                Pending
+                                            </span>
+                                        }
+                                        else if (appointment.Status == "Completed")
+                                        {
+                                            <span class="badge bg-success">
+                                                Completed
+                                            </span>
+                                        }
+                                        else if (appointment.Status == "Cancelled")
+                                        {
+                                            <span class="badge bg-danger">
+                                                Cancelled
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            }else{
+                                <tr>
+                                    <td colspan="5" class="text-center">
+                                        No recent appointments found.
+                                    </td>
+                                </tr>
+                            }
 
-                                <td>John Doe</td>
-
-                                <td>Dr. Mensah</td>
-
-                                <td>Today</td>
-
-                                <td>09:00 AM</td>
-
-                                <td>
-                                    <span class="badge bg-warning">
-                                        Pending
-                                    </span>
-                                </td>
-
-                            </tr>
-
-                            <tr>
-
-                                <td>Mary Johnson</td>
-
-                                <td>Dr. Williams</td>
-
-                                <td>Today</td>
-
-                                <td>10:30 AM</td>
-
-                                <td>
-                                    <span class="badge bg-success">
-                                        Completed
-                                    </span>
-                                </td>
-
-                            </tr>
-
-                            <tr>
-
-                                <td>Samuel Owusu</td>
-
-                                <td>Dr. Brown</td>
-
-                                <td>Tomorrow</td>
-
-                                <td>08:30 AM</td>
-
-                                <td>
-                                    <span class="badge bg-primary">
-                                        Confirmed
-                                    </span>
-                                </td>
-
-                            </tr>
 
                         </tbody>
 
@@ -411,3 +402,34 @@
 
     </div>
 </PageShell>
+
+@code{
+    DashboardSummary summary = new();
+    List<RecentAppointment> recentAppointments = new();
+    bool isLoading = true;
+    DateTime date = DateTime.Now;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        try
+        {
+            summary = await dashboardService.GetDashboardSummaryAsync();
+            recentAppointments = await appointmentService.GetRecentAppointmentsAsync(date, date);
+
+        }
+        catch
+        {
+            summary = new();
+            recentAppointments = new();
+
+        }
+        finally
+        {
+            isLoading = false;
+            
+        }
+    }
+
+
+}

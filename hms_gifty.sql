@@ -75,7 +75,7 @@ CREATE TABLE Department
 
     CONSTRAINT FK_Department_Doctor
         FOREIGN KEY (HeadDoctorId)
-        REFERENCES Doctor(Id)
+        REFERENCES Doctors(Id)
 );
 
 
