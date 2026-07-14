@@ -1,5 +1,6 @@
 using HospitalManagementSystem.Components;
 using HospitalManagementSystem.Interfaces;
+using HospitalManagementSystem.Repository;
 using HospitalManagementSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,9 @@ builder.Services.AddBlazorBootstrap();
 
 //Register services for dependency injection
 builder.Services.AddScoped<IAuth, AuthServices>();
+builder.Services.AddScoped<IAppointmentRepo, AppointmentRepository>();
+builder.Services.AddScoped<IDashboard, DashboardService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
 var app = builder.Build();
 
