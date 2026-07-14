@@ -75,7 +75,7 @@ CREATE TABLE Department
 
     CONSTRAINT FK_Department_Doctor
         FOREIGN KEY (HeadDoctorId)
-        REFERENCES Doctor(Id)
+        REFERENCES Doctors(Id)
 );
 
 
@@ -105,6 +105,16 @@ CREATE TABLE Doctors
     UpdatedAt DATETIME NULL
 );
 GO
+
+-- Doctor table alter
+ALTER TABLE Doctors
+ADD
+    DepartmentId VARCHAR(150) NOT NULL,
+    LicenseNumber VARCHAR(150) NOT NULL,
+    CONSTRAINT FK_Doctors_Department
+        FOREIGN KEY (DepartmentId)
+        REFERENCES Department(Id);
+
 
 -- Patients
 CREATE TABLE Patients
