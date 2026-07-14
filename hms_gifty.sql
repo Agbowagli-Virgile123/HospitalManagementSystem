@@ -52,6 +52,27 @@ CREATE TABLE Staff
 --    'Administrator'
 --);
 
+-- Department
+CREATE TABLE DEPARTMENT 
+(
+    Id VARCHAR(150) PRIMARY KEY,
+
+    DoctorId   VARCHAR(100),
+
+    DeptName            VARCHAR(100) NOT NULL,
+
+    DeptLocation         VARCHAR(100),
+
+    DeptContact          VARCHAR(50),
+
+    DeptStatus           VARCHAR(20),
+
+     CONSTRAINT FK_Doctor_Department
+        FOREIGN KEY (DoctorId)
+        REFERENCES Doctor(Id),
+
+);
+
 
 -- Doctors
 CREATE TABLE Doctors

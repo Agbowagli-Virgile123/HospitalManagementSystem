@@ -1,4 +1,6 @@
-﻿namespace HospitalManagementSystem.Models.Doctor
+﻿using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace HospitalManagementSystem.Models.Doctor
 {
     public class Doctor
     {
@@ -19,6 +21,9 @@
         public decimal ConsultationFee { get; set; }
 
         public bool IsAvailable { get; set; }
+        
+        public string? DepartementId { get; set; } // to be added
+        public string? LicenseNumber { get; set; } // to be added
 
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
