@@ -2,10 +2,8 @@
 
 namespace HospitalManagementSystem.Models.Doctor
 {
-    public class Doctor
+    public class DoctorPost
     {
-        public string Id { get; set; } =string.Empty;
-
         public string FirstName { get; set; } = "";
 
         public string LastName { get; set; } = "";
@@ -24,7 +22,13 @@ namespace HospitalManagementSystem.Models.Doctor
         
         public string? DepartementId { get; set; } // to be added
         public string? LicenseNumber { get; set; } // to be added
+        
+    }
 
+    public class DoctorGet : DoctorPost
+    {
+        public string Id { get; set; } = string.Empty;
+        public string DepartmentName { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }
