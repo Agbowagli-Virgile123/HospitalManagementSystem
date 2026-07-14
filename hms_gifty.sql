@@ -106,6 +106,16 @@ CREATE TABLE Doctors
 );
 GO
 
+-- Doctor table alter
+ALTER TABLE Doctors
+ADD
+    DepartmentId VARCHAR(150) NOT NULL,
+    LicenseNumber VARCHAR(150) NOT NULL,
+    CONSTRAINT FK_Doctors_Department
+        FOREIGN KEY (DepartmentId)
+        REFERENCES Department(Id);
+
+
 -- Patients
 CREATE TABLE Patients
 (
