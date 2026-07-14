@@ -53,24 +53,29 @@ CREATE TABLE Staff
 --);
 
 -- Department
-CREATE TABLE DEPARTMENT 
+CREATE TABLE Department
 (
     Id VARCHAR(150) PRIMARY KEY,
 
-    DoctorId   VARCHAR(100),
+    DeptName VARCHAR(100) NOT NULL,
 
-    DeptName            VARCHAR(100) NOT NULL,
+    DeptDescription VARCHAR(255),
 
-    DeptLocation         VARCHAR(100),
+    DeptLocation VARCHAR(100),
 
-    DeptContact          VARCHAR(50),
+    DeptContact VARCHAR(50),
 
-    DeptStatus           VARCHAR(20),
+    HeadDoctorId VARCHAR(150) NULL,
 
-     CONSTRAINT FK_Doctor_Department
-        FOREIGN KEY (DoctorId)
-        REFERENCES Doctor(Id),
+    DeptStatus VARCHAR(20) NOT NULL DEFAULT 'Active',
 
+    CreatedDate DATETIME NOT NULL DEFAULT(GETDATE()),
+
+    UpdatedDate DATETIME NULL,
+
+    CONSTRAINT FK_Department_Doctor
+        FOREIGN KEY (HeadDoctorId)
+        REFERENCES Doctor(Id)
 );
 
 
