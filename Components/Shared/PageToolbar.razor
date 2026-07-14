@@ -1,0 +1,144 @@
+﻿<style>
+    .toolbar-card {
+        border-radius: 18px;
+    }
+
+        .toolbar-card .input-group {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .toolbar-card .form-control {
+            height: 46px;
+        }
+
+        .toolbar-card .input-group-text {
+            background: white;
+        }
+
+        .toolbar-card .btn {
+            height: 46px;
+            border-radius: 12px;
+            min-width: 120px;
+        }
+
+    @@media(max - width:768px) {
+
+        .toolbar-card .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="card border-0 shadow-sm mb-4 toolbar-card">
+
+    <div class="card-body">
+
+        <div class="row g-3 align-items-center">
+
+            <!-- Search -->
+
+            <div class="col-lg-5 col-md-7">
+
+                <div class="input-group">
+
+                    <span class="input-group-text bg-white border-end-0">
+
+                        <i class="bi bi-search text-muted"></i>
+
+                    </span>
+
+                    <input class="form-control border-start-0 shadow-none"
+                           placeholder="@SearchPlaceholder"
+                           @bind="SearchText"
+                           @bind:event="oninput" />
+
+                </div>
+
+            </div>
+
+            <!-- Right Side -->
+
+            <div class="col-lg-7 col-md-5">
+
+                <div class="d-flex justify-content-md-end gap-2 flex-wrap">
+
+                    @if (ShowRefreshButton)
+                    {
+                        <button class="btn btn-outline-secondary"
+                                @onclick="RefreshClicked">
+
+                            <i class="bi bi-arrow-clockwise me-2"></i>
+
+                            Refresh
+
+                        </button>
+                    }
+
+                    <button class="btn btn-primary"
+                            @onclick="AddClicked">
+
+                        <i class="bi bi-plus-circle me-2"></i>
+
+                        @AddButtonText
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public string SearchPlaceholder { get; set; } = "Search...";
+
+    [Parameter]
+    public string AddButtonText { get; set; } = "Add";
+
+    [Parameter]
+    public bool ShowRefreshButton { get; set; } = true;
+
+    [Parameter]
+    public EventCallback<string> OnSearch { get; set; }
+
+    [Parameter]
+    public EventCallback OnAdd { get; set; }
+
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
+
+    private string searchText = "";
+
+    private string SearchText
+    {
+        get => searchText;
+
+        set
+        {
+            if (searchText == value)
+                return;
+
+            searchText = value;
+
+            OnSearch.InvokeAsync(searchText);
+        }
+    }
+
+    private async Task AddClicked()
+    {
+        await OnAdd.InvokeAsync();
+    }
+
+    private async Task RefreshClicked()
+    {
+        await OnRefresh.InvokeAsync();
+    }
+
+}

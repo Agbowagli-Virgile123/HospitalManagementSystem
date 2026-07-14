@@ -1,0 +1,412 @@
+﻿@page "/doctors"
+@using HospitalManagementSystem.Components.Shared
+@using HospitalManagementSystem.Components.Shared.Modal
+@using HospitalManagementSystem.Models
+@layout HospitalManagementSystem.Components.Layout.MainLayout
+
+<PageShell PageTitle="Doctors">
+
+    <!-- Statistics -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-lg-4 col-md-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        Total Doctors
+                    </div>
+
+                    <h2 class="fw-bold mt-2">
+                        15
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        Available
+                    </div>
+
+                    <h2 class="fw-bold mt-2 text-success">
+                        12
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-4 col-md-12">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        Unavailable
+                    </div>
+
+                    <h2 class="fw-bold mt-2 text-danger">
+                        3
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Toolbar -->
+
+    <PageToolbar SearchPlaceholder="Search doctors..."
+                 AddButtonText="Add Doctor"
+                 OnSearch="SearchDoctors"
+                 OnAdd="OpenDoctorDialog"
+                 OnRefresh="LoadDoctors" />
+
+    <!-- Table -->
+
+    <div class="card border-0 shadow-sm">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle mb-0">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th>Name</th>
+
+                        <th>Gender</th>
+
+                        <th>Specialization</th>
+
+                        <th>Phone</th>
+
+                        <th>Fee</th>
+
+                        <th>Status</th>
+
+                        <th class="text-center">Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+
+                        <td>
+
+                            <div class="fw-semibold">
+                                Dr. John Doe
+                            </div>
+
+                            <small class="text-muted">
+                                john@hospital.com
+                            </small>
+
+                        </td>
+
+                        <td>Male</td>
+
+                        <td>Cardiology</td>
+
+                        <td>0241234567</td>
+
+                        <td>GH₵ 300</td>
+
+                        <td>
+
+                            <span class="badge bg-success">
+
+                                Available
+
+                            </span>
+
+                        </td>
+
+                        <td class="text-center">
+
+                            <button class="btn btn-sm btn-outline-primary me-2">
+
+                                <i class="bi bi-pencil-square"></i>
+
+                            </button>
+
+                            <button class="btn btn-sm btn-outline-danger">
+
+                                <i class="bi bi-trash"></i>
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>
+
+                            <div class="fw-semibold">
+                                Dr. Mary Smith
+                            </div>
+
+                            <small class="text-muted">
+                                mary@hospital.com
+                            </small>
+
+                        </td>
+
+                        <td>Female</td>
+
+                        <td>Pediatrics</td>
+
+                        <td>0209876543</td>
+
+                        <td>GH₵ 250</td>
+
+                        <td>
+
+                            <span class="badge bg-danger">
+
+                                Unavailable
+
+                            </span>
+
+                        </td>
+
+                        <td class="text-center">
+
+                            <button class="btn btn-sm btn-outline-primary me-2">
+
+                                <i class="bi bi-pencil-square"></i>
+
+                            </button>
+
+                            <button class="btn btn-sm btn-outline-danger">
+
+                                <i class="bi bi-trash"></i>
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</PageShell>
+
+<AppModal
+    Visible="@showDoctorModal"
+        Title="@ModalTitle"
+    Icon="bi bi-person-plus"
+    Size="CustomerModalSizeEnum.Large"
+    SaveButtonText="@SaveButtonText"
+    IsSaving="@isSaving"
+    OnSave="SaveDoctor"
+    OnCancel="CloseDoctorModal">
+
+    <div class="row g-4">
+
+        <!-- Personal Information -->
+        <div class="col-12">
+            <h6 class="fw-bold border-bottom pb-2 mb-3">
+                <i class="bi bi-person-badge me-2 text-primary"></i>
+                Personal Information
+            </h6>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                First Name <span class="text-danger">*</span>
+            </label>
+
+            <input type="text"
+                   class="form-control"
+                   placeholder="Enter first name" />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                Last Name <span class="text-danger">*</span>
+            </label>
+
+            <input type="text"
+                   class="form-control"
+                   placeholder="Enter last name" />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                Gender
+            </label>
+
+            <select class="form-select">
+                <option>Select Gender</option>
+                <option>Male</option>
+                <option>Female</option>
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                Department
+            </label>
+
+            <select class="form-select">
+                <option>Select Department</option>
+                <option>Cardiology</option>
+                <option>Pediatrics</option>
+                <option>Surgery</option>
+                <option>Neurology</option>
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                Specialization
+            </label>
+
+            <input type="text"
+                   class="form-control"
+                   placeholder="Specialization" />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                License Number
+            </label>
+
+            <input type="text"
+                   class="form-control"
+                   placeholder="Medical License Number" />
+        </div>
+
+        <!-- Contact Information -->
+
+        <div class="col-12 mt-2">
+            <h6 class="fw-bold border-bottom pb-2 mb-3">
+                <i class="bi bi-telephone me-2 text-success"></i>
+                Contact Information
+            </h6>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                Phone Number
+            </label>
+
+            <input type="text"
+                   class="form-control"
+                   placeholder="024XXXXXXX" />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                Email Address
+            </label>
+
+            <input type="email"
+                   class="form-control"
+                   placeholder="doctor@hospital.com" />
+        </div>
+
+        <!-- Professional Information -->
+
+        <div class="col-12 mt-2">
+            <h6 class="fw-bold border-bottom pb-2 mb-3">
+                <i class="bi bi-briefcase me-2 text-warning"></i>
+                Professional Information
+            </h6>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                Consultation Fee (GH₵)
+            </label>
+
+            <input type="number"
+                   class="form-control"
+                   placeholder="0.00" />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                Status
+            </label>
+
+            <select class="form-select">
+                <option>Available</option>
+                <option>Unavailable</option>
+            </select>
+        </div>
+
+    </div>
+
+</AppModal>
+
+@code{
+
+    private bool showDoctorModal = false;
+    bool isSaving = false;
+    private bool isEdit;
+
+    private string ModalTitle =>
+        isEdit ? "Update Doctor" : "Add Doctor";
+
+    private string SaveButtonText =>
+        isEdit ? "Update Doctor" : "Save Doctor";
+
+    private void SearchDoctors(string searchText)
+    {
+        // Implement search logic here
+    }
+
+    private void OpenDoctorDialog()
+    {
+        // Implement logic to open a dialog for adding a new doctor
+        showDoctorModal = true;
+
+    }
+
+    private void LoadDoctors()
+    {
+        // Implement logic to refresh the list of doctors
+    }
+
+    private void SaveDoctor()
+    {
+        // Implement logic to save the doctor details
+    }
+
+    private void CloseDoctorModal()
+    {
+        showDoctorModal = false;
+    }
+}
