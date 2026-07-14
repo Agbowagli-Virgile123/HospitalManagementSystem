@@ -1,0 +1,211 @@
+﻿
+<style>
+    .sidebar {
+        width: 270px;
+        background: #0f172a !important;
+        color: white;
+    }
+
+    .sidebar-header {
+        text-align: center;
+        padding: 30px 20px;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .logo {
+        width: 70px;
+        height: 70px;
+        margin: auto;
+        margin-bottom: 15px;
+        border-radius: 50%;
+        background: #2563eb;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2rem;
+        color: white;
+    }
+
+    .sidebar-header h4 {
+        margin-bottom: 4px;
+        font-weight: 700;
+    }
+
+    .sidebar-header small {
+        color: #94a3b8;
+    }
+
+    .sidebar-menu {
+        flex: 1;
+        padding: 20px 15px;
+        overflow-y: auto;
+    }
+
+    .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 18px;
+        color: #cbd5e1;
+        text-decoration: none;
+        border-radius: 12px;
+        margin-bottom: 6px;
+        transition: .25s;
+    }
+
+        .sidebar-link i {
+            font-size: 1.2rem;
+            width: 22px;
+        }
+
+        .sidebar-link:hover {
+            background: #1e293b;
+            color: white;
+        }
+
+        .sidebar-link.active {
+            background: #2563eb;
+            color: white;
+        }
+
+    .sidebar-footer {
+        padding: 20px;
+        border-top: 1px solid rgba(255,255,255,.08);
+        text-align: center;
+        color: #94a3b8;
+    }
+
+    /* Desktop */
+    @@media (min-width:992px) {
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+    }
+
+    /* Mobile */
+    @@media (max-width:991.98px) {
+
+        .sidebar {
+            width: 270px;
+        }
+
+        .sidebar-header {
+            display: none;
+        }
+    }
+</style>
+
+<div class="offcanvas-lg offcanvas-start sidebar"
+     tabindex="-1"
+     id="sidebar"
+     aria-labelledby="sidebarLabel">
+
+    <!-- Mobile Header -->
+    <div class="offcanvas-header border-bottom d-lg-none">
+
+        <div class="d-flex align-items-center">
+
+            <i class="bi bi-hospital-fill text-primary fs-3 me-2"></i>
+
+            <div>
+
+                <h5 class="mb-0">@AppGlobal.AppName</h5>
+
+                <small class="text-muted">Hospital Management</small>
+
+            </div>
+
+        </div>
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="offcanvas">
+        </button>
+
+    </div>
+
+    <div class="offcanvas-body p-0 d-flex flex-column">
+
+        <!-- Logo -->
+
+        <div class="sidebar-header">
+
+            <div class="logo">
+
+                <i class="bi bi-hospital-fill"></i>
+
+            </div>
+
+            <h4>@AppGlobal.AppName</h4>
+
+            <small>Hospital Management System</small>
+
+        </div>
+
+        <!-- Navigation -->
+
+        <nav class="sidebar-menu">
+
+            <NavLink href="/dashboard" class="sidebar-link">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+            </NavLink>
+
+            <NavLink href="/doctors" class="sidebar-link">
+                <i class="bi bi-person-badge"></i>
+                <span>Doctors</span>
+            </NavLink>
+
+            <NavLink href="/patients" class="sidebar-link">
+                <i class="bi bi-people"></i>
+                <span>Patients</span>
+            </NavLink>
+
+            <NavLink href="/appointments" class="sidebar-link">
+                <i class="bi bi-calendar-check"></i>
+                <span>Appointments</span>
+            </NavLink>
+
+            <NavLink href="/medical-records" class="sidebar-link">
+                <i class="bi bi-file-medical"></i>
+                <span>Medical Records</span>
+            </NavLink>
+
+            <NavLink href="/medications" class="sidebar-link">
+                <i class="bi bi-capsule"></i>
+                <span>Medications</span>
+            </NavLink>
+
+            <NavLink href="/prescriptions" class="sidebar-link">
+                <i class="bi bi-journal-medical"></i>
+                <span>Prescriptions</span>
+            </NavLink>
+
+            <NavLink href="/billing" class="sidebar-link">
+                <i class="bi bi-cash-stack"></i>
+                <span>Billing</span>
+            </NavLink>
+
+            <NavLink href="/reports" class="sidebar-link">
+                <i class="bi bi-bar-chart"></i>
+                <span>Reports</span>
+            </NavLink>
+
+        </nav>
+
+        <!-- Footer -->
+
+        <div class="sidebar-footer">
+
+            <small>
+                Version 1.0
+            </small>
+
+        </div>
+
+    </div>
+
+</div>

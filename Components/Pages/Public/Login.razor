@@ -4,6 +4,7 @@
 @layout HospitalManagementSystem.Components.Layout.EmptyLayout
 @inject HospitalManagementSystem.Interfaces.IAuth authServices
 @inject Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage.ProtectedLocalStorage ProtectedLocalStore
+@inject NavigationManager Navigation
 
 <PageTitle>Staff Login</PageTitle>
 
@@ -219,6 +220,7 @@
 
         //Save user info in local storage
         await ProtectedLocalStore.SetAsync(AppGlobal.userInfoKey, resp.user);
+        Navigation.NavigateTo("/dashboard", true);
         isLoading = false;
 
     }

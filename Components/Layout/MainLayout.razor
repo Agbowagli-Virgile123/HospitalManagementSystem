@@ -1,9 +1,155 @@
-﻿@inherits LayoutComponentBase
+﻿@using HospitalManagementSystem.Components.Shared
+@using HospitalManagementSystem.Models.Auth
+@inherits LayoutComponentBase
+@inject HospitalManagementSystem.Interfaces.IAuth AuthStateSvc
+@inject NavigationManager Navigation
 
-@Body
 
+<style>
+    .layout {
+        display: flex;
+        min-height: 100vh;
+        background: #f5f7fb;
+    }
+
+    /* Desktop Sidebar */
+
+    .sidebar {
+        width: 270px;
+        flex-shrink: 0;
+        background: #0f172a;
+        color: white;
+    }
+
+    /* Right Section */
+
+    .content-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    /* Main Page */
+
+    .content {
+        flex: 1;
+        padding: 10px;
+    }
+
+    /* Loading */
+
+    .loading-screen {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    /* Desktop */
+
+    @@media (min-width:992px) {
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+    }
+
+    /* Tablet & Phone */
+
+    @@media (max-width:991px) {
+
+        .sidebar {
+            width: 0;
+        }
+    }
+</style>
+
+
+@if (isLoading)
+{
+    <div class="loading-screen">
+
+        <div class="text-center">
+
+            <div class="spinner-border text-primary"
+                 style="width:4rem;height:4rem;">
+            </div>
+
+            <h5 class="mt-3">
+                Loading Hospital Management System...
+            </h5>
+
+            <p class="text-muted">
+                Please wait while we verify your session.
+            </p>
+
+        </div>
+
+    </div>
+}
+else
+{
+    <div class="layout">
+
+        <!-- Sidebar -->
+
+        <HospitalManagementSystem.Components.Shared.Sidebar />
+
+        <!-- Right Side -->
+
+        <div class="content-wrapper">
+
+            <Topbar User="@user" />
+
+            <main class="content">
+
+                @Body
+
+            </main>
+
+        </div>
+
+    </div>
+}
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code{
+
+    private bool isLoading = true;
+
+    private MdUserInfo user = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        try
+        {
+            user = await AuthStateSvc.InitializeAsync();
+
+   
+            if (user == null || string.IsNullOrEmpty(user.Id))
+            {
+                Navigation.NavigateTo("/", true);
+                return;
+            }
+
+            isLoading = false;
+
+            StateHasChanged();
+        }
+        catch
+        {
+            Navigation.NavigateTo("/", true);
+        }
+    }
+
+}

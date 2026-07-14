@@ -1,6 +1,7 @@
 ﻿using HospitalManagementSystem.Interfaces;
 using HospitalManagementSystem.Models;
 using HospitalManagementSystem.Models.Auth;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.Data.SqlClient;
 
 namespace HospitalManagementSystem.Services
@@ -8,10 +9,13 @@ namespace HospitalManagementSystem.Services
     public class AuthServices : IAuth
     {
         private readonly string _connectionString;
-
-        public AuthServices(IConfiguration connectionString)
+        private readonly ProtectedLocalStorage _storage;
+        public MdUserInfo user { get; set; } = new();
+        public bool IsLoaded { get; private set; }
+        public AuthServices(IConfiguration connectionString, ProtectedLocalStorage storage)
         {
             _connectionString = connectionString.GetConnectionString("DefaultConnection")!;
+            _storage = storage;
         }
 
         public async Task<(MdResponse response, MdUserInfo user)> Login(MdLogin req)
@@ -71,5 +75,50 @@ namespace HospitalManagementSystem.Services
             }
 
         }
+
+        public async Task<MdUserInfo> InitializeAsync()
+        {
+            if (IsLoaded) return user;
+
+            try
+            {
+                var result = await _storage.GetAsync<MdUserInfo>(AppGlobal.userInfoKey);
+
+                if (result.Success && result.Value != null)
+                {
+                    user = result.Value;
+                }
+                else
+                {
+                    user = null!;
+                }
+
+                return user;
+            }
+            catch
+            {
+                return user = null!;
+            }
+
+            IsLoaded = true;
+        }
+
+        public void Reset()
+        {
+            user = null;
+            IsLoaded = false;
+        }
+
+        public async Task LogoutAsync()
+        {
+            user = null;
+            IsLoaded = false;
+            await _storage.DeleteAsync(AppGlobal.userInfoKey);
+        }
+
+        public bool IsValid(MdUserInfo user) =>
+            user != null &&
+            !string.IsNullOrEmpty(user.Id) &&
+            !string.IsNullOrEmpty(user.Username);
     }
 }

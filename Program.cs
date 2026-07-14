@@ -15,6 +15,7 @@ builder.Services.AddAntDesign();
 builder.Services.AddBlazorBootstrap();
 
 //Register services for dependency injection
+
 builder.Services.AddScoped<IAuth, AuthServices>();
 
 var app = builder.Build();
