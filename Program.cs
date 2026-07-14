@@ -1,5 +1,6 @@
 using HospitalManagementSystem.Components;
 using HospitalManagementSystem.Interfaces;
+using HospitalManagementSystem.Models.Doctor;
 using HospitalManagementSystem.Repository;
 using HospitalManagementSystem.Services;
 
@@ -21,6 +22,9 @@ builder.Services.AddScoped<IAuth, AuthServices>();
 builder.Services.AddScoped<IAppointmentRepo, AppointmentRepository>();
 builder.Services.AddScoped<IDashboard, DashboardService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+
+builder.Services.AddScoped<IDoctorRepo, DoctorRepository>();
+builder.Services.AddScoped<IDoctor, DoctorService>();
 
 var app = builder.Build();
 
