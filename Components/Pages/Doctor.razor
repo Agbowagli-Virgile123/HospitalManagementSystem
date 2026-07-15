@@ -2,7 +2,9 @@
 @using HospitalManagementSystem.Components.Shared
 @using HospitalManagementSystem.Components.Shared.Modal
 @using HospitalManagementSystem.Models
+@using HospitalManagementSystem.Models.Doctor
 @layout HospitalManagementSystem.Components.Layout.MainLayout
+@inject HospitalManagementSystem.Interfaces.IDoctor doctorService
 
 <PageShell PageTitle="Doctors">
 
@@ -21,7 +23,7 @@
                     </div>
 
                     <h2 class="fw-bold mt-2">
-                        15
+                       @totalDoctors
                     </h2>
 
                 </div>
@@ -41,7 +43,7 @@
                     </div>
 
                     <h2 class="fw-bold mt-2 text-success">
-                        12
+                       @availableDoctors
                     </h2>
 
                 </div>
@@ -61,7 +63,7 @@
                     </div>
 
                     <h2 class="fw-bold mt-2 text-danger">
-                        3
+                        @unavailableDoctors 
                     </h2>
 
                 </div>
@@ -112,106 +114,94 @@
 
                 <tbody>
 
-                    <tr>
+                    @if (isLoading)
+                    {
+                        @* show Spinner *@
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @if (doctors.Any())
+                        {
+                           @foreach(var doc in filtered)
+                           {
+                                <tr>
 
-                        <td>
+                                    <td>
 
-                            <div class="fw-semibold">
-                                Dr. John Doe
-                            </div>
+                                        <div class="fw-semibold">
+                                            @($"{doc.FirstName} {doc.LastName}")
+                                        </div>
 
-                            <small class="text-muted">
-                                john@hospital.com
-                            </small>
+                                        <small class="text-muted">
+                                            @doc.Email
+                                        </small>
 
-                        </td>
+                                    </td>
 
-                        <td>Male</td>
+                                    <td>@doc.Gender</td>
 
-                        <td>Cardiology</td>
+                                    <td>@doc.Specialization</td>
 
-                        <td>0241234567</td>
+                                    <td>@doc.PhoneNumber</td>
 
-                        <td>GH₵ 300</td>
+                                    <td>GH₵ @doc.ConsultationFee</td>
 
-                        <td>
+                                    <td>
 
-                            <span class="badge bg-success">
+                                        @if(doc.IsAvailable == false)
+                                        {
+                                            <span class="badge bg-danger">
+                                                Unavailable
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">
+                                                Available
+                                            </span>
+                                        }
 
-                                Available
+                                    </td>
 
-                            </span>
+                                    <td class="text-center">
 
-                        </td>
+                                        <button class="btn btn-sm btn-outline-primary me-2" @onclick="() => EditDoctor(doc)">
 
-                        <td class="text-center">
+                                            <i class="bi bi-pencil-square"></i>
 
-                            <button class="btn btn-sm btn-outline-primary me-2">
+                                        </button>
 
-                                <i class="bi bi-pencil-square"></i>
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteDoctor(doc)">
 
-                            </button>
+                                            <i class="bi bi-trash"></i>
 
-                            <button class="btn btn-sm btn-outline-danger">
+                                        </button>
 
-                                <i class="bi bi-trash"></i>
+                                    </td>
 
-                            </button>
+                                </tr>
+                                
+                            }
 
-                        </td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td>
-
-                            <div class="fw-semibold">
-                                Dr. Mary Smith
-                            </div>
-
-                            <small class="text-muted">
-                                mary@hospital.com
-                            </small>
-
-                        </td>
-
-                        <td>Female</td>
-
-                        <td>Pediatrics</td>
-
-                        <td>0209876543</td>
-
-                        <td>GH₵ 250</td>
-
-                        <td>
-
-                            <span class="badge bg-danger">
-
-                                Unavailable
-
-                            </span>
-
-                        </td>
-
-                        <td class="text-center">
-
-                            <button class="btn btn-sm btn-outline-primary me-2">
-
-                                <i class="bi bi-pencil-square"></i>
-
-                            </button>
-
-                            <button class="btn btn-sm btn-outline-danger">
-
-                                <i class="bi bi-trash"></i>
-
-                            </button>
-
-                        </td>
-
-                    </tr>
-
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-5">
+                                    <div class="fw-bold">
+                                        No Doctor Found
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
                 </tbody>
 
             </table>
@@ -247,7 +237,7 @@
                 First Name <span class="text-danger">*</span>
             </label>
 
-            <input type="text"
+            <input type="text" @bind-value="doctor.FirstName"
                    class="form-control"
                    placeholder="Enter first name" />
         </div>
@@ -258,7 +248,7 @@
             </label>
 
             <input type="text"
-                   class="form-control"
+                   class="form-control" @bind-value="doctor.LastName"
                    placeholder="Enter last name" />
         </div>
 
@@ -267,7 +257,7 @@
                 Gender
             </label>
 
-            <select class="form-select">
+            <select class="form-select" @bind="doctor.Gender">
                 <option>Select Gender</option>
                 <option>Male</option>
                 <option>Female</option>
@@ -280,11 +270,11 @@
             </label>
 
             <select class="form-select">
-                <option>Select Department</option>
-                <option>Cardiology</option>
-                <option>Pediatrics</option>
-                <option>Surgery</option>
-                <option>Neurology</option>
+                <option value="">Select Department</option>
+                @foreach (var department in departements)
+                {
+                    <option value="@department">@department</option>
+                }
             </select>
         </div>
 
@@ -294,7 +284,7 @@
             </label>
 
             <input type="text"
-                   class="form-control"
+                   class="form-control" @bind-value="doctor.Specialization"
                    placeholder="Specialization" />
         </div>
 
@@ -304,7 +294,7 @@
             </label>
 
             <input type="text"
-                   class="form-control"
+                   class="form-control" @bind-value="doctor.LicenseNumber"
                    placeholder="Medical License Number" />
         </div>
 
@@ -323,7 +313,7 @@
             </label>
 
             <input type="text"
-                   class="form-control"
+                   class="form-control" @bind-value="doctor.PhoneNumber"
                    placeholder="024XXXXXXX" />
         </div>
 
@@ -333,7 +323,7 @@
             </label>
 
             <input type="email"
-                   class="form-control"
+                   class="form-control" @bind-value="doctor.Email"
                    placeholder="doctor@hospital.com" />
         </div>
 
@@ -351,7 +341,7 @@
                 Consultation Fee (GH₵)
             </label>
 
-            <input type="number"
+            <input type="number" @bind-value="doctor.ConsultationFee"
                    class="form-control"
                    placeholder="0.00" />
         </div>
@@ -361,9 +351,9 @@
                 Status
             </label>
 
-            <select class="form-select">
-                <option>Available</option>
-                <option>Unavailable</option>
+            <select class="form-select" @bind="avalability">
+                <option value="Available">Available</option>
+                <option value="Unavailable">Unavailable</option>
             </select>
         </div>
 
@@ -372,10 +362,21 @@
 </AppModal>
 
 @code{
-    Doctor doctor = new Doctor();
+    List<DoctorGet> doctors = new();
+    List<DoctorGet> filtered = new();
+    DoctorPost doctor = new();
+    string selectedDoctorId = string.Empty;
+
+    List<string> departements = new() { "Cardiology", "Pediatrics", "Surgery", "Neurology" };
+
     private bool showDoctorModal = false;
     bool isSaving = false;
     private bool isEdit;
+    bool isLoading = true;
+    double totalDoctors = 0;
+    double availableDoctors = 0;
+    double unavailableDoctors = 0;
+    string avalability = "Available";
 
     private string ModalTitle =>
         isEdit ? "Update Doctor" : "Add Doctor";
@@ -383,30 +384,211 @@
     private string SaveButtonText =>
         isEdit ? "Update Doctor" : "Save Doctor";
 
-    private void SearchDoctors(string searchText)
+    protected override async Task OnInitializedAsync()
     {
-        // Implement search logic here
+        await LoadDoctors();
     }
 
+
+    //Load doctors from the service and update the statistics
+    private async Task LoadDoctors()
+    {
+        isLoading = true;
+
+        try
+        {
+            doctors = await doctorService.GetDoctorsAsync();
+            filtered = doctors; // Initialize filtered list with all doctors
+            totalDoctors = doctors.Count;
+            availableDoctors = doctors.Count(d => d.IsAvailable == true);
+            unavailableDoctors = doctors.Count(d => d.IsAvailable == false);
+
+        }
+        catch
+        {
+            // Handle exception (e.g., log it, show a message to the user)
+            doctors = new List<DoctorGet>(); // Initialize to an empty list in case of error
+            totalDoctors = 0;
+            availableDoctors = 0;
+            unavailableDoctors = 0;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+
+    }
+
+
+    //Get the doctor details for editing
+    public void EditDoctor(DoctorGet doc)
+    {
+        if (doc == null || string.IsNullOrEmpty(doc.Id))
+        {
+            _message.Error("Invalid doctor ID.");
+            return;
+        }
+        selectedDoctorId = doc.Id;
+        doctor.FirstName = doc.FirstName;
+        doctor.LastName = doc.LastName;
+        doctor.ConsultationFee = doc.ConsultationFee;
+        doctor.Email = doc.Email;
+        doctor.ConsultationFee = doc.ConsultationFee;
+        doctor.DepartementId = doc.DepartementId;
+        doctor.Gender = doc.Gender;
+        doctor.IsAvailable = doc.IsAvailable;
+        doctor.Specialization = doc.Specialization;
+        doctor.LicenseNumber = doc.LicenseNumber;
+        doctor.PhoneNumber = doc.PhoneNumber;
+        avalability = doc.IsAvailable ? "Available" : "Unavailable";
+
+        isEdit = true;
+        OpenDoctorDialog();
+
+    }
+
+    //Search doctors based on the search text
+    private void SearchDoctors(string searchText)
+    {
+        filtered = doctors.Where(d => $"{d.FirstName} {d.LastName}".Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                                      d.Email.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                                      d.PhoneNumber.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                                      d.Specialization.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
+
+    // Open the doctor modal for adding a new doctor
     private void OpenDoctorDialog()
     {
-        // Implement logic to open a dialog for adding a new doctor
         showDoctorModal = true;
 
     }
 
-    private void LoadDoctors()
+    // Edit doctor or add new doctor
+
+    private async Task SaveDoctor()
     {
-        // Implement logic to refresh the list of doctors
+        if(string.IsNullOrEmpty(doctor.FirstName) || string.IsNullOrEmpty(doctor.LastName))
+        {
+            _message.Error("First name and Last name are required.");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(doctor.Gender))
+        {
+            _message.Error("Gender is required.");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(doctor.Specialization))
+        {
+            _message.Error("Specialization is required.");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(doctor.PhoneNumber))
+        {
+            _message.Error("Phone number is required.");
+            return;
+        }
+
+        if(string.IsNullOrEmpty(doctor.Email))
+        {
+            _message.Error("Email is required.");
+            return;
+        }
+
+        if(string.IsNullOrEmpty(doctor.LicenseNumber))
+        {
+            _message.Error("License number is required.");
+            return;
+        }
+
+        if(string.IsNullOrEmpty(avalability))
+        {
+            _message.Error("Availability status is required.");
+            return;
+        }else{
+
+            doctor.IsAvailable = avalability == "Available";    
+        }
+
+        if(string.IsNullOrEmpty(doctor.ConsultationFee.ToString()) || doctor.ConsultationFee <= 0)
+        {
+            _message.Error("Consultation fee must be greater than zero.");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(doctor.DepartementId))
+        {
+            _message.Error("Department is required.");
+            return;
+        }
+
+        isSaving = true;
+        bool response = false;
+
+        if (isEdit)
+        {
+            response = await doctorService.UpdateDoctorAsync(selectedDoctorId, doctor);
+        }
+        else
+        {
+            response = await doctorService.AddDoctorAsync(doctor);
+        }
+
+        if (!response)
+        {
+            if(isEdit)
+                _message.Error("Failed to update doctor. Please try again.");
+            else
+            {
+                
+                _message.Error("Failed to save doctor. Please try again."); 
+            }
+            isSaving = false;
+            return;
+        }
+
+        if(isEdit)
+        {
+            _message.Success("Doctor updated successfully.");
+        }
+        else
+        {
+            _message.Success("Doctor added successfully.");
+        }
+        CloseDoctorModal();
+        await LoadDoctors();
+        isSaving = false;
+
     }
 
-    private void SaveDoctor()
+    //Delete doctor
+    public async Task DeleteDoctor(DoctorGet doc)
     {
-        // Implement logic to save the doctor details
+        if(string.IsNullOrEmpty(doc.Id))
+        {
+            _message.Error("Invalid doctor ID.");
+            return;
+        }
+
+        bool response = await doctorService.DeleteDoctorAsync(doc.Id);
+        if (!response)
+        {
+            _message.Error("Failed to delete doctor. Please try again.");
+            return;
+        }
+        _message.Success("Doctor deleted successfully.");
+        await LoadDoctors();
     }
+
+    // Close the doctor modal and reset the form
 
     private void CloseDoctorModal()
     {
+        selectedDoctorId = string.Empty;
+        doctor = new DoctorPost();
+        isEdit = false;
         showDoctorModal = false;
     }
 }

@@ -235,6 +235,10 @@
                 width: 100%;
             }
     }
+
+    .ant-message {
+        z-index: 1100;
+    }
 </style>
 
 @if (Visible)
@@ -303,10 +307,14 @@
 
                         @if (IsSaving)
                         {
-                            <span class="spinner-border spinner-border-sm me-2"></span>
+                           <CustomButtonSpinner Label="Saving" />
+                        }
+                        else
+                        {
+                            
+                            @SaveButtonText
                         }
 
-                        @SaveButtonText
 
                     </button>
                 }
