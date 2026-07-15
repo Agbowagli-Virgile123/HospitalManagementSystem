@@ -175,13 +175,28 @@ namespace HospitalManagementSystem.Repository
         // Deleting
         public async Task<bool> DeleteDoctorAsync(string doctorId)
         {
+
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            //check if the dorctor id is in the departementid
+            string ckeckquery = @"SELECT COUNT(*) FROM Department WHERE HeadDoctorId = @HeadDoctorId";
+
+            using var checkcommand = new SqlCommand(ckeckquery, connection);
+            checkcommand.Parameters.AddWithValue("@HeadDoctorId", doctorId);
+            int count = Convert.ToInt16(await checkcommand.ExecuteScalarAsync());
+
+
+            if (count > 0)
+            {
+                return false;
+            }
+                
+
             const string sql = @"
                     DELETE FROM Doctors
                     WHERE Id = @Id;
                 ";
-
-            using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync();
 
             using var command = new SqlCommand(sql, connection);
             command.Parameters.AddWithValue("@Id", doctorId);

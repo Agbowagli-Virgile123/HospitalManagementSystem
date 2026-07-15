@@ -16,7 +16,7 @@ namespace HospitalManagementSystem.Services
         public async Task<bool> UpdateDoctorAsync(string doctorId, DoctorPost doctor)
         {
             var existing = await repo.GetDoctorAsync(doctorId);
-            if (existing != null) 
+            if (existing == null) 
                 return false;
 
             existing.PhoneNumber = doctor.PhoneNumber ?? existing.PhoneNumber;

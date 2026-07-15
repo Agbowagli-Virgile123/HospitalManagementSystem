@@ -79,6 +79,7 @@ CREATE TABLE Department
 );
 
 
+
 -- Doctors
 CREATE TABLE Doctors
 (
@@ -105,16 +106,6 @@ CREATE TABLE Doctors
     UpdatedAt DATETIME NULL
 );
 GO
-
--- Doctor table alter
-ALTER TABLE Doctors
-ADD
-    DepartmentId VARCHAR(150) NOT NULL,
-    LicenseNumber VARCHAR(150) NOT NULL,
-    CONSTRAINT FK_Doctors_Department
-        FOREIGN KEY (DepartmentId)
-        REFERENCES Department(Id);
-
 
 -- Patients
 CREATE TABLE Patients
@@ -322,3 +313,22 @@ CREATE TABLE AuditLogs
         REFERENCES Staff(Id)
 );
 GO
+
+
+-- Doctor table alter
+ALTER TABLE Doctors
+ADD
+    DepartmentId VARCHAR(150) NOT NULL,
+    LicenseNumber VARCHAR(150) NOT NULL,
+    CONSTRAINT FK_Doctors_Department
+        FOREIGN KEY (DepartmentId)
+        REFERENCES Department(Id);
+
+-- Insert sample data into Department table
+INSERT INTO Department (Id, DeptName, DeptDescription, DeptLocation, DeptContact, HeadDoctorId)
+VALUES
+('D001', 'Cardiology', 'Heart-related treatments and surgeries', 'Building A, Floor 2', '0551234567', NULL),
+('D002', 'Neurology', 'Brain and nervous system treatments', 'Building B, Floor 3', '0552345678', NULL),
+('D003', 'Pediatrics', 'Child healthcare services', 'Building C, Floor 1', '0553456789', NULL),
+('D004', 'Orthopedics', 'Bone and joint treatments and surgeries', 'Building D, Floor 4', '0554567890', NULL),
+('D005', 'Dermatology', 'Skin-related treatments and consultations', 'Building E, Floor 2', '0555678901', NULL);

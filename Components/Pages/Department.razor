@@ -1,7 +1,11 @@
-﻿@* @page "/departments"
+﻿@page "/department"
 @using HospitalManagementSystem.Components.Shared
 @using HospitalManagementSystem.Components.Shared.Modal
+@using HospitalManagementSystem.Models
+@using HospitalManagementSystem.Models.Doctor
 @layout HospitalManagementSystem.Components.Layout.MainLayout
+@inject HospitalManagementSystem.Interfaces.IDoctor doctorService
+@inject IDepartment departmentService
 
 <style>
     /* ==========================================
@@ -302,7 +306,7 @@
                             </small>
 
                             <h3 class="fw-bold mt-2 mb-0">
-                                @Departments.Count
+                                @(filterd is not null ? filterd.Count() : 0)
                             </h3>
 
                         </div>
@@ -336,7 +340,7 @@
                             </small>
 
                             <h3 class="fw-bold text-success mt-2 mb-0">
-                                @Departments.Count(x=>x.DeptStatus=="Active")
+                                @(filterd is not null ? filterd.Count(x=>x.DeptStatus=="Active") : 0)
                             </h3>
 
                         </div>
@@ -370,7 +374,7 @@
                             </small>
 
                             <h3 class="fw-bold text-danger mt-2 mb-0">
-                                @Departments.Count(x=>x.DeptStatus=="Inactive")
+                                @(filterd is not null ? filterd.Count(x=>x.DeptStatus=="Inactive") : 0)
                             </h3>
 
                         </div>
@@ -404,7 +408,7 @@
                             </small>
 
                             <h3 class="fw-bold text-info mt-2 mb-0">
-                                @Departments.Count(x=>!string.IsNullOrWhiteSpace(x.HeadDoctorId))
+                                @(filterd is not null ? filterd.Count(x=> x is not null && x.HeadDoctor is not null && !string.IsNullOrWhiteSpace(x.HeadDoctor.Id)) : 0)
                             </h3>
 
                         </div>
@@ -496,7 +500,7 @@
 
                         else
                         {
-                            @foreach (var dept in Departments)
+                            @foreach (var dept in filterd)
                             {
                                 <tr>
 
@@ -530,7 +534,7 @@
 
                                     <td>
 
-                                        @if(string.IsNullOrWhiteSpace(dept.HeadDoctorName))
+                                        @if(dept is null && string.IsNullOrWhiteSpace(dept.HeadDoctor.Id))
                                         {
                                             <span class="text-danger">
 
@@ -542,7 +546,7 @@
                                         {
                                             <span>
 
-                                                @dept.HeadDoctorName
+                                                @( dept.HeadDoctor is not null ? $"{dept.HeadDoctor.FirstName} {dept.HeadDoctor.LastName}" : "NA")
 
                                             </span>
                                         }
@@ -641,6 +645,62 @@
     OnCancel="CloseDepartmentModal">
 
     <!-- Department Form will go here -->
+    <div class="row g-4">
+
+        <div class="col-md-6">
+            <label class="form-label">
+                Departement Name <span class="text-danger">*</span>
+            </label>
+
+            <input type="text" @bind-value="department.DeptName"
+                   class="form-control"
+                   placeholder="Enter department name" />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                Department Contact<span class="text-danger">*</span>
+            </label>
+
+            <input type="number"
+                   class="form-control" @bind-value="department.DeptContact"
+                   placeholder="Enter contact" />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                Department Location<span class="text-danger">*</span>
+            </label>
+
+            <input type="text"
+                   class="form-control" @bind-value="department.DeptLocation"
+                   placeholder="Enter location" />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                Status
+            </label>
+
+            <select class="form-select" @bind="department.DeptStatus">
+                <option value="">Select Status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+            </select>
+        </div>
+
+        <div class="col-12">
+            <label class="form-label">
+                Description<span class="text-danger">*</span>
+            </label>
+
+            <textarea
+                   class="form-control" @bind="department.DeptDescription"
+                   placeholder="Enter Description" >
+            </textarea>
+        </div>
+
+    </div>
 
 </AppModal>
 
@@ -660,11 +720,28 @@
 
     SaveButtonText="Assign"
 
+    IsSaving="@isSaving"
+
     OnSave="SaveHeadDoctor"
 
     OnCancel="CloseAssignHeadModal">
 
     <!-- Doctor Selection will go here -->
+    <div class="row g-4">
+        <div class="col">
+            <label class="form-label">
+                Doctors
+            </label>
+
+            <select class="form-select" @bind="selectedDoctorId">
+                <option value="">Select Doctor</option>
+                @foreach (var d in Doctors)
+                {
+                    <option value="@d.Id">@($"{d.FirstName} {d.LastName}")</option>
+                }
+            </select>
+        </div>
+    </div>
 
 </AppModal>
 
@@ -685,11 +762,15 @@
 
     private string searchText = string.Empty;
 
-    // private MdDepartment department = new();
+    private DepartmentPost department = new();
 
-    // private List<MdDepartment> Departments = new();
+    private List<DepartmentGet> Departments = new();
+    private IEnumerable<DepartmentGet> filterd => Departments.Where(d => d.DeptName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                              d.DeptStatus.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                              d.DeptContact.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                              d.DeptLocation.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
 
-    // private List<MdDoctor> Doctors = new();
+    private List<DoctorGet> Doctors = new();
 
     #endregion
 
@@ -721,11 +802,18 @@
     {
         // Load all departments
 
+        isLoading = true;
+
+        Departments = await departmentService.GetDepartments();
+
+        isLoading = false;
+
     }
 
     private async Task LoadDoctors()
     {
         // Load doctors for Assign Head modal
+        Doctors = await doctorService.GetDoctorsAsync();
 
     }
 
@@ -738,8 +826,6 @@
     {
         searchText = value;
 
-        // Search departments
-
     }
 
     #endregion
@@ -750,10 +836,13 @@
     private void OpenAddDepartment()
     {
         // Clear model
+        department = new DepartmentGet();
 
         // Set Edit = false
+        isEdit = false;
 
         // Show modal
+        showDepartmentModal = true;
 
     }
 
@@ -762,13 +851,24 @@
 
     #region Edit Department
 
-    private async Task OpenEditDepartment(MdDepartment item)
+    private async Task OpenEditDepartment(DepartmentGet item)
     {
         // Load department
+        selectedDepartmentId = item.Id;
+        department = new DepartmentPost
+        {
+            DeptName = item.DeptName ,
+            DeptDescription = item.DeptDescription ,
+            DeptLocation = item.DeptLocation,
+            DeptContact = item.DeptContact,
+            DeptStatus = item.DeptStatus,
+        };
 
         // Set Edit = true
+        isEdit = true;
 
         // Show modal
+        showDepartmentModal = true;
 
     }
 
@@ -779,17 +879,81 @@
 
     private async Task SaveDepartment()
     {
-        isSaving = true;
 
+        if (string.IsNullOrEmpty(department.DeptName))
+        {
+            _message.Error("Department name is required.");
+            return;
+        }
+
+        if(string.IsNullOrEmpty(department.DeptStatus))
+        {
+            _message.Error("Department status is required.");
+            return;
+        }   
+
+        if(string.IsNullOrEmpty(department.DeptLocation))
+        {
+            _message.Error("Department location is required.");
+            return;
+        }
+
+        if(string.IsNullOrEmpty(department.DeptContact))
+        {
+            _message.Error("Department contact is required.");
+            return;
+        }
+
+        if(string.IsNullOrEmpty(department.DeptDescription))
+        {
+            _message.Error("Department description is required.");
+            return;
+        }
+
+
+        isSaving = true;
+        bool response = false;
         try
         {
             if (isEdit)
             {
+                if (string.IsNullOrEmpty(selectedDepartmentId))
+                {
+                    _message.Error("Department ID is missing for update."); 
+                    isSaving = false;
+                    return;
+                }
+
                 // Update Department
+                response = await departmentService.UpdateDepartment(selectedDepartmentId, department);
             }
             else
             {
                 // Create Department
+                response = await departmentService.CreateDepartment(department);
+
+            }
+
+            if (!response)
+            {
+                if (isEdit)
+                    _message.Error("Failed to update department. Please try again.");
+                else
+                {
+
+                    _message.Error("Failed to save department. Please try again.");
+                }
+                isSaving = false;
+                return;
+            }
+
+            if (isEdit)
+            {
+                _message.Success("Department updated successfully.");
+            }
+            else
+            {
+                _message.Success("Department added successfully.");
             }
 
             await LoadDepartments();
@@ -810,10 +974,24 @@
     private async Task DeleteDepartment(string id)
     {
         // Confirmation
+        if (string.IsNullOrEmpty(id))
+        {
+            _message.Error("Department is missing");
+            return;
+        }
 
         // Delete
+        var (response, mesage) = await departmentService.DeleteDepartment(id); 
+        if (!response)
+        {
+            _message.Error("Failed to delete department. Please try again.");
+            return;
+        }
+        _message.Success("Department deleted successfully.");
+
 
         // Reload list
+        await LoadDepartments();
 
     }
 
@@ -822,11 +1000,11 @@
 
     #region Assign Head
 
-    private async Task AssignHead(MdDepartment item)
+    private async Task AssignHead(DepartmentGet item)
     {
         selectedDepartmentId = item.Id;
 
-        selectedDoctorId = item.HeadDoctorId ?? "";
+        selectedDoctorId = item.HeadDoctor is not null ? item.HeadDoctor.Id : "";
 
         await LoadDoctors();
 
@@ -836,6 +1014,31 @@
     private async Task SaveHeadDoctor()
     {
         // Save Head Doctor
+        if(string.IsNullOrEmpty(selectedDepartmentId) || string.IsNullOrEmpty(selectedDoctorId))
+        {
+            _message.Error("Department or Doctor is required");
+            return;
+        }
+
+        isSaving = true;
+
+        var payload = new MapDepToDoc
+            {
+                DeptId = selectedDepartmentId,
+                DocId = selectedDoctorId
+            };
+        // Delete
+        var response = await departmentService.MapDepartmentHead(payload);
+        if (!response)
+        {
+            _message.Error("Failed to map. Please try again.");
+            return;
+        }
+        _message.Success("Mapped successfully.");
+
+
+        // Reload list
+        await LoadDepartments();
 
         // Reload departments
 
@@ -850,7 +1053,7 @@
     private void CloseDepartmentModal()
     {
         showDepartmentModal = false;
-
+        selectedDepartmentId = string.Empty;
         department = new();
 
         isEdit = false;
@@ -894,5 +1097,4 @@
     }
 
     #endregion
-
-} *@
+}

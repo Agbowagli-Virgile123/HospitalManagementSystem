@@ -9,13 +9,13 @@ namespace HospitalManagementSystem.Repository
         Task<bool> CreateDepartment(DepartmentPost model);
         Task<bool> UpdateDepartment(string id, DepartmentPost model);
         Task<DepartmentGet?> GetDepartment(string id);
-        Task<IEnumerable<DepartmentGet>> GetDepartments(string? search);
+        Task<List<DepartmentGet>> GetDepartments(string? search);
         Task<bool> MapDepartmentHead(MapDepToDoc model);
         Task<(bool,string)> DeleteDepartment(string id);
     }
     public class DepartmentRepo(IConfiguration config) : IDepartmentRepo
     {
-        private readonly string _connectionString = config.GetConnectionString("DefaultConnection");
+        private readonly string _connectionString = config.GetConnectionString("DefaultConnection")!;
 
         // POST/PUT
         public async Task<bool> CreateDepartment(DepartmentPost model)
@@ -159,7 +159,7 @@ namespace HospitalManagementSystem.Repository
                     }
             };
         }
-        public async Task<IEnumerable<DepartmentGet>> GetDepartments(string? search)
+        public async Task<List<DepartmentGet>> GetDepartments(string? search)
         {
             const string sql = @"
                 SELECT
@@ -169,7 +169,7 @@ namespace HospitalManagementSystem.Repository
                     doc.LastName,
                     doc.Specialization,
                     doc.PhoneNumber,
-                    doc.Email,
+                    doc.Email
                 FROM Department dep
                 LEFT JOIN Doctors doc
                     ON dep.HeadDoctorId = doc.Id

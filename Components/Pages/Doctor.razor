@@ -5,6 +5,7 @@
 @using HospitalManagementSystem.Models.Doctor
 @layout HospitalManagementSystem.Components.Layout.MainLayout
 @inject HospitalManagementSystem.Interfaces.IDoctor doctorService
+@inject IDepartment departmentService
 
 <PageShell PageTitle="Doctors">
 
@@ -23,7 +24,7 @@
                     </div>
 
                     <h2 class="fw-bold mt-2">
-                       @totalDoctors
+                        @(filtered is not null ? filtered.Count() : 0)
                     </h2>
 
                 </div>
@@ -43,7 +44,7 @@
                     </div>
 
                     <h2 class="fw-bold mt-2 text-success">
-                       @availableDoctors
+                        @(filtered is not null ? filtered.Count(d => d.IsAvailable == true): 0)
                     </h2>
 
                 </div>
@@ -63,7 +64,7 @@
                     </div>
 
                     <h2 class="fw-bold mt-2 text-danger">
-                        @unavailableDoctors 
+                        @(filtered is not null ? filtered.Count(d => d.IsAvailable == false): 0)
                     </h2>
 
                 </div>
@@ -258,9 +259,9 @@
             </label>
 
             <select class="form-select" @bind="doctor.Gender">
-                <option>Select Gender</option>
-                <option>Male</option>
-                <option>Female</option>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
             </select>
         </div>
 
@@ -269,11 +270,11 @@
                 Department
             </label>
 
-            <select class="form-select">
+            <select class="form-select" @bind="doctor.DepartementId">
                 <option value="">Select Department</option>
                 @foreach (var department in departements)
                 {
-                    <option value="@department">@department</option>
+                    <option value="@department.Id">@department.DeptName</option>
                 }
             </select>
         </div>
@@ -312,7 +313,7 @@
                 Phone Number
             </label>
 
-            <input type="text"
+            <input type="number"
                    class="form-control" @bind-value="doctor.PhoneNumber"
                    placeholder="024XXXXXXX" />
         </div>
@@ -363,19 +364,19 @@
 
 @code{
     List<DoctorGet> doctors = new();
-    List<DoctorGet> filtered = new();
+    IEnumerable<DoctorGet> filtered => doctors.Where(d => $"{d.FirstName} {d.LastName}".Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                              d.Email.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                              d.PhoneNumber.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                              d.Specialization.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
     DoctorPost doctor = new();
-    string selectedDoctorId = string.Empty;
+    string selectedDoctorId, searchText = string.Empty;
 
-    List<string> departements = new() { "Cardiology", "Pediatrics", "Surgery", "Neurology" };
+    List<DepartmentGet> departements = new();
 
     private bool showDoctorModal = false;
     bool isSaving = false;
     private bool isEdit;
     bool isLoading = true;
-    double totalDoctors = 0;
-    double availableDoctors = 0;
-    double unavailableDoctors = 0;
     string avalability = "Available";
 
     private string ModalTitle =>
@@ -387,6 +388,7 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadDoctors();
+        departements = await departmentService.GetDepartments();
     }
 
 
@@ -398,19 +400,12 @@
         try
         {
             doctors = await doctorService.GetDoctorsAsync();
-            filtered = doctors; // Initialize filtered list with all doctors
-            totalDoctors = doctors.Count;
-            availableDoctors = doctors.Count(d => d.IsAvailable == true);
-            unavailableDoctors = doctors.Count(d => d.IsAvailable == false);
 
         }
         catch
         {
             // Handle exception (e.g., log it, show a message to the user)
             doctors = new List<DoctorGet>(); // Initialize to an empty list in case of error
-            totalDoctors = 0;
-            availableDoctors = 0;
-            unavailableDoctors = 0;
         }
         finally
         {
@@ -443,22 +438,21 @@
         avalability = doc.IsAvailable ? "Available" : "Unavailable";
 
         isEdit = true;
-        OpenDoctorDialog();
+        showDoctorModal = true;
 
     }
 
     //Search doctors based on the search text
-    private void SearchDoctors(string searchText)
+    private void SearchDoctors(string search)
     {
-        filtered = doctors.Where(d => $"{d.FirstName} {d.LastName}".Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                                      d.Email.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                                      d.PhoneNumber.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                                      d.Specialization.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+        searchText = search;
     }
 
     // Open the doctor modal for adding a new doctor
     private void OpenDoctorDialog()
     {
+        doctor = new DoctorPost();
+        isEdit = false;
         showDoctorModal = true;
 
     }
@@ -529,6 +523,14 @@
 
         if (isEdit)
         {
+
+            if(string.IsNullOrEmpty(selectedDoctorId))
+            {
+                _message.Error("Invalid doctor ID.");
+                isSaving = false;
+                return;
+            }
+
             response = await doctorService.UpdateDoctorAsync(selectedDoctorId, doctor);
         }
         else

@@ -8,11 +8,11 @@ namespace HospitalManagementSystem.Services
         Task<bool> CreateDepartment(DepartmentPost model);
         Task<bool> UpdateDepartment(string id, DepartmentPost model);
         Task<DepartmentGet?> GetDepartment(string id);
-        Task<IEnumerable<DepartmentGet>> GetDepartments(string? search);
+        Task<List<DepartmentGet>> GetDepartments(string? search = null);
         Task<bool> MapDepartmentHead(MapDepToDoc model);
         Task<(bool, string)> DeleteDepartment(string id);
     }
-    public class DepartmentService(IDepartmentRepo repo)
+    public class DepartmentService(IDepartmentRepo repo) : IDepartment
     {
         public async Task<bool> CreateDepartment(DepartmentPost model)
         {
@@ -59,7 +59,7 @@ namespace HospitalManagementSystem.Services
             }
             return await repo.GetDepartment(id);
         }
-        public async Task<IEnumerable<DepartmentGet>> GetDepartments(string? search)
+        public async Task<List<DepartmentGet>> GetDepartments(string? search)
         {
             return await repo.GetDepartments(search);
         }
