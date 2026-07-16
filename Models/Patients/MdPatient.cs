@@ -27,6 +27,7 @@ namespace HospitalManagementSystem.Models.Patients
         public string? City { get; set; }
         public string? Country { get; set; }
         public string? Nationality { get; set; }
+        public string? AllergyDescription { get; set; }
         public DateOnly DOB { get; set; } = DateOnly.FromDateTime(DateTime.Now);
     }
 
