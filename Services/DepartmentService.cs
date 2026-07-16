@@ -1,4 +1,4 @@
-﻿using HospitalManagementSystem.Models;
+﻿using HospitalManagementSystem.Models.Department;
 using HospitalManagementSystem.Repository;
 
 namespace HospitalManagementSystem.Services

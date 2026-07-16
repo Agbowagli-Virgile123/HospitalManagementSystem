@@ -1,4 +1,4 @@
-﻿using HospitalManagementSystem.Models;
+﻿using HospitalManagementSystem.Models.Department;
 using HospitalManagementSystem.Models.Doctor;
 using Microsoft.Data.SqlClient;
 

@@ -1,6 +1,6 @@
 ﻿using HospitalManagementSystem.Models.Doctor;
 
-namespace HospitalManagementSystem.Models
+namespace HospitalManagementSystem.Models.Department
 {
     public class DepartmentPost
     {

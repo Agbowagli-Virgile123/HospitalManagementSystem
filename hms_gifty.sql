@@ -332,3 +332,14 @@ VALUES
 ('D003', 'Pediatrics', 'Child healthcare services', 'Building C, Floor 1', '0553456789', NULL),
 ('D004', 'Orthopedics', 'Bone and joint treatments and surgeries', 'Building D, Floor 4', '0554567890', NULL),
 ('D005', 'Dermatology', 'Skin-related treatments and consultations', 'Building E, Floor 2', '0555678901', NULL);
+
+--Add Date of Birth to Patient
+ALTER TABLE Patients
+ADD
+       DOB DATE NOT NULL,
+       BloodGroup VARCHAR(50) NOT NULL,
+       MaritalStatus VARCHAR(50) NOT NULL,
+       City VARCHAR(50) NOT NULL,
+       Country VARCHAR(50) NOT NULL,
+       Nationality VARCHAR(50) NOT NULL,
+       Status VARCHAR(50) NOT NULL DEFAULT 'Active'

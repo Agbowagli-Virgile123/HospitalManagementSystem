@@ -1,6 +1,6 @@
 ﻿namespace HospitalManagementSystem.Models
 {
-    public class MdAppointmentRequest
+    public class MdAppointmentRequests
     {
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
