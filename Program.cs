@@ -29,6 +29,10 @@ builder.Services.AddScoped<IDoctor, DoctorService>();
 builder.Services.AddScoped<IDepartmentRepo, DepartmentRepo>();
 builder.Services.AddScoped<IDepartment, DepartmentService>();
 
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IPatient, PatientService>();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

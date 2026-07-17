@@ -1,21 +1,17 @@
-﻿using System.Net.NetworkInformation;
-using System.Text.RegularExpressions;
-
-namespace HospitalManagementSystem.Models.Patients
+﻿namespace HospitalManagementSystem.Models.Patients
 {
     public class MdGetPatient : MdPostPatient
     {
+        public string? Id { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 
 
     public class MdPostPatient
     {
-        public string? Id { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; } 
         public string? Gender { get; set; }
-        public string? DateOfBirth { get; set; }
         public string? PhoneNumber { get; set; }
         public string? Email { get; set; }
         public string? Address { get; set; }
