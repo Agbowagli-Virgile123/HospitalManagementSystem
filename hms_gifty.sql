@@ -336,10 +336,81 @@ VALUES
 --Add Date of Birth to Patient
 ALTER TABLE Patients
 ADD
-       DOB DATE NOT NULL,
-       BloodGroup VARCHAR(50) NOT NULL,
+       BloodGroup VARCHAR(50) NULL,
        MaritalStatus VARCHAR(50) NOT NULL,
-       City VARCHAR(50) NOT NULL,
-       Country VARCHAR(50) NOT NULL,
-       Nationality VARCHAR(50) NOT NULL,
+       City VARCHAR(50) NULL,
+       Country VARCHAR(50) NULL,
+       Nationality VARCHAR(50) NULL,
+       AllergyDescription VARCHAR(MAX) NULL,
        Status VARCHAR(50) NOT NULL DEFAULT 'Active'
+
+-- Insert sample data into Patients table
+INSERT INTO Patients
+(
+    Id,
+    FirstName,
+    LastName,
+    Gender,
+    DateOfBirth,
+    PhoneNumber,
+    Email,
+    Address,
+    EmergencyContactName,
+    EmergencyContactPhone,
+    BloodGroup,
+    MaritalStatus,
+    City,
+    Country,
+    Nationality,
+    AllergyDescription,
+    Status
+)
+VALUES
+('PAT001', 'John', 'Doe', 'Male', '1988-05-15', '+1-555-1001', 'john.doe@email.com',
+ '123 Maple Street', 'Jane Doe', '+1-555-2001',
+ 'O+', 'Married', 'New York', 'USA', 'American', 'Penicillin allergy', 'Active'),
+
+('PAT002', 'Mary', 'Johnson', 'Female', '1992-08-22', '+1-555-1002', 'mary.johnson@email.com',
+ '45 Oak Avenue', 'Peter Johnson', '+1-555-2002',
+ 'A+', 'Single', 'Chicago', 'USA', 'American', 'None', 'Active'),
+
+('PAT003', 'David', 'Williams', 'Male', '1979-12-10', '+1-555-1003', 'david.williams@email.com',
+ '89 Pine Road', 'Sarah Williams', '+1-555-2003',
+ 'B+', 'Married', 'Houston', 'USA', 'American', 'Peanut allergy', 'Inactive'),
+
+('PAT004', 'Linda', 'Brown', 'Female', '1985-04-18', '+1-555-1004', 'linda.brown@email.com',
+ '67 Cedar Lane', 'Michael Brown', '+1-555-2004',
+ 'AB+', 'Married', 'Phoenix', 'USA', 'American', 'Latex allergy', 'Active'),
+
+('PAT005', 'James', 'Miller', 'Male', '1995-09-30', '+1-555-1005', 'james.miller@email.com',
+ '901 Birch Drive', 'Emily Miller', '+1-555-2005',
+ 'O-', 'Single', 'Dallas', 'USA', 'American', NULL, 'Active'),
+
+('PAT006', 'Sophia', 'Davis', 'Female', '2000-01-12', '+1-555-1006', 'sophia.davis@email.com',
+ '222 Elm Street', 'Olivia Davis', '+1-555-2006',
+ 'A-', 'Single', 'Seattle', 'USA', 'American', 'Dust allergy', 'Active'),
+
+('PAT007', 'Daniel', 'Wilson', 'Male', '1983-07-08', '+1-555-1007', 'daniel.wilson@email.com',
+ '456 Walnut Street', 'Emma Wilson', '+1-555-2007',
+ 'B-', 'Divorced', 'Boston', 'USA', 'American', 'Shellfish allergy', 'Active'),
+
+('PAT008', 'Emma', 'Moore', 'Female', '1998-11-25', '+1-555-1008', 'emma.moore@email.com',
+ '78 Spruce Avenue', 'Noah Moore', '+1-555-2008',
+ 'AB-', 'Single', 'Denver', 'USA', 'American', NULL, 'Active'),
+
+('PAT009', 'Michael', 'Taylor', 'Male', '1975-03-05', '+1-555-1009', 'michael.taylor@email.com',
+ '145 Aspen Court', 'Laura Taylor', '+1-555-2009',
+ 'O+', 'Married', 'Miami', 'USA', 'American', 'Diabetes', 'Inactive'),
+
+('PAT010', 'Olivia', 'Anderson', 'Female', '1990-06-14', '+1-555-1010', 'olivia.anderson@email.com',
+ '333 Cherry Boulevard', 'Ethan Anderson', '+1-555-2010',
+ 'A+', 'Married', 'San Francisco', 'USA', 'American', 'None', 'Active');
+
+ ALTER TABLE Appointments
+ADD
+    DepartmentId VARCHAR(150) NOT NULL,
+Reason VARCHAR(MAX) NULL,
+Note VARCHAR(MAX) NULL,
+    CONSTRAINT FK_Doctors_Department
+        FOREIGN KEY (DepartmentId)
+        REFERENCES Department(Id);

@@ -327,7 +327,7 @@
 
                             <h3 class="fw-bold text-primary mt-2">
 
-                                @(filtered is not null ? Patients.Count(x=>x.Gender=="Male") : 0)
+                                @(filtered is not null ? filtered.Count(x=>x.Gender=="Male") : 0)
 
                             </h3>
 
@@ -365,7 +365,7 @@
 
                             <h3 class="fw-bold text-danger mt-2">
 
-                                @(filtered is not null ?Patients.Count(x=>x.Gender=="Female") : 0)
+                                @(filtered is not null ? filtered.Count(x=>x.Gender=="Female") : 0)
 
                             </h3>
 
@@ -403,7 +403,7 @@
 
                             <h3 class="fw-bold text-success mt-2">
 
-                                @(filtered is not null ? Patients.Count(x=>x.Status=="Active") : 0)
+                                @(filtered is not null ? filtered.Count(x=>x.Status=="Active") : 0)
 
                             </h3> 
 
@@ -508,7 +508,7 @@
 
                         else
                         {
-                            @foreach(var patient in Patients)
+                            @foreach(var patient in filtered)
                             {
                                 <tr>
 
@@ -550,15 +550,15 @@
 
                                     </td>
 
-                                    @* <td>
+                                    <td>
 
                                         @patient.BloodGroup
 
-                                    </td> *@
+                                    </td>
 
                                     <td>
 
-                                        @(DateTime.Now.Year - patient.DOB.Year) Years
+                                        @CalculateAge(patient.DOB) Years
                                     </td>
 
                                     <td>
@@ -773,7 +773,7 @@
 
                     </label>
 
-                    <input type="number" class="form-control" @bind-value="patient.PhoneNumber"
+                    <input type="text" class="form-control" @bind-value="patient.PhoneNumber"
                            placeholder="024xxxxxxx" />
 
                 </div>
@@ -847,14 +847,15 @@
 
                     <select class="form-select" @bind="patient.BloodGroup">
 
-                        <option>A+</option>
-                        <option>A-</option>
-                        <option>B+</option>
-                        <option>B-</option>
-                        <option>AB+</option>
-                        <option>AB-</option>
-                        <option>O+</option>
-                        <option>O-</option>
+                        <option value="">--- Select Blood Group ---</option>
+                        <option value="A+">A+</option>
+                        <option value="A">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O">O-</option>
 
                     </select>
 
@@ -869,9 +870,9 @@
                     </label>
 
                     <select class="form-select" @bind="patient.MaritalStatus">
-
-                        <option>Single</option>
-                        <option>Married</option>
+                        <option value="">--- Select Marital Status ---</option>
+                        <option value="Single">Single</option>
+                        <option value="Married">Married</option>
 
                     </select>
 
@@ -886,10 +887,10 @@
                     </label>
 
                     <select class="form-select" @bind="patient.Status">
+                        <option value="">--- Select Status ---</option>
+                        <option value="Active">Active</option>
 
-                        <option>Active</option>
-
-                        <option>Inactive</option>
+                        <option value="Inactive">Inactive</option>
 
                     </select>
 
@@ -991,6 +992,7 @@
     private string searchText = string.Empty;
 
     private MdPostPatient patient = new();
+    string selectedPatientId = string.Empty;
 
     private List<MdGetPatient> Patients = new();
     private IEnumerable<MdGetPatient> filtered => Patients.Where(d => d.LastName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
@@ -1084,10 +1086,29 @@
         isEdit = true;
 
         // Get Patient By Id
-
+        selectedPatientId = item.Id!;
         // patient = await PatientService.Get(item.Id);
 
-        patient = item;
+        patient = new MdPostPatient
+        {
+            FirstName = item.FirstName,
+            LastName = item.LastName,
+            Gender = item.Gender,
+            PhoneNumber = item.PhoneNumber,
+            Email = item.Email, //
+            Address = item.Address, //
+            Status = item.Status, //
+            EmergencyName = item.EmergencyName,//
+            EmergencyContactPhone = item.EmergencyContactPhone,//
+            BloodGroup = item.BloodGroup,//
+            MaritalStatus = item.MaritalStatus,
+            City = item.City, //
+            Country = item.Country, //
+            Nationality = item.Nationality,//
+            AllergyDescription = item.AllergyDescription,//
+            DOB = item.DOB,
+
+        };
 
         showPatientModal = true;
     }
@@ -1099,14 +1120,57 @@
 
     private async Task SavePatient()
     {
+        if(string.IsNullOrEmpty(patient.FirstName) || string.IsNullOrEmpty(patient.LastName))
+        {
+            _message.Error("Fistname or Lastname is required");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(patient.Gender))
+        {
+            _message.Error("Gender is required");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(patient.PhoneNumber))
+        {
+            _message.Error("Phone number is required");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(patient.Status))
+        {
+            _message.Error(" is required");
+            return;
+        }
+
+        if (patient.DOB == default)
+        {
+            _message.Error("Invalid Date Of Birth");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(patient.Status))
+        {
+            patient.Status = "Active";
+        }
+
         isSaving = true;
 
         try
         {
 
+
+            bool response = false;
+
             if (isEdit)
             {
                 // Update Patient
+                if (string.IsNullOrEmpty(selectedPatientId))
+                {
+                    _message.Error("Id not found for update");
+                    return;
+                }
 
                 // await PatientService.Update(patient);
 
@@ -1119,6 +1183,31 @@
 
             }
 
+
+            if (!response)
+            {
+                if (isEdit)
+                {
+
+                    _message.Error("Failed to update patient. Please try again.");
+                }
+                else
+                {
+
+                    _message.Error("Failed to save patient. Please try again.");
+                }
+                isSaving = false;
+                return;
+            }
+
+            if (isEdit)
+            {
+                _message.Success("Patient updated successfully.");
+            }
+            else
+            {
+                _message.Success("Patient added successfully.");
+            }
             await LoadPatients();
 
             ClosePatientModal();
@@ -1149,7 +1238,19 @@
 
         // Confirmation Dialog
 
+        if (string.IsNullOrEmpty(id))
+        {
+            _message.Error("No doctor found for deleting");
+        }
+
+        bool response = false;
         // await PatientService.Delete(id);
+        if (!response)
+        {
+            _message.Error("Failed to delete patient. Please try again.");
+            return;
+        }
+        _message.Success("Department patient successfully.");
 
         await LoadPatients();
 
@@ -1191,12 +1292,12 @@
 
     }
 
-    private int CalculateAge(DateTime dob)
+    private int CalculateAge(DateOnly dob)
     {
 
         var age = DateTime.Today.Year - dob.Year;
 
-        if (dob.Date > DateTime.Today.AddYears(-age))
+        if (dob.ToDateTime(TimeOnly.MaxValue) > DateTime.Today.AddYears(-age))
             age--;
 
         return age;

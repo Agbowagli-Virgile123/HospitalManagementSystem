@@ -1,0 +1,1372 @@
+﻿@page "/appointments"
+@using HospitalManagementSystem.Components.Shared
+@using HospitalManagementSystem.Components.Shared.Modal
+@using HospitalManagementSystem.Models
+@using HospitalManagementSystem.Models.Appointment
+@using HospitalManagementSystem.Models.Department
+@using HospitalManagementSystem.Models.Doctor
+@using HospitalManagementSystem.Models.Patients
+@layout HospitalManagementSystem.Components.Layout.MainLayout
+@inject HospitalManagementSystem.Interfaces.IDoctor doctorService
+@inject IDepartment departmentService
+
+<style>
+    /* =====================================================
+       Statistics Cards
+    ===================================================== */
+
+    .icon-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .icon-circle i {
+            font-size: 1.4rem;
+        }
+
+    .card {
+        border-radius: 14px;
+        transition: .25s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 .8rem 1.5rem rgba(0,0,0,.08) !important;
+        }
+
+    /* =====================================================
+       Table
+    ===================================================== */
+
+    .table {
+        margin-bottom: 0;
+    }
+
+        .table thead th {
+            background: #f8fafc;
+            color: #374151;
+            font-weight: 700;
+            font-size: .92rem;
+            border-bottom: 2px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: 1rem;
+        }
+
+        .table tbody tr {
+            transition: .25s;
+        }
+
+            .table tbody tr:hover {
+                background: #f8fbff;
+            }
+
+    /* =====================================================
+       Patient Info
+    ===================================================== */
+
+    .patient-name {
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .patient-number {
+        font-size: .82rem;
+        color: #6b7280;
+    }
+
+    /* =====================================================
+       Doctor Name
+    ===================================================== */
+
+    .doctor-name {
+        font-weight: 600;
+    }
+
+    /* =====================================================
+       Status Badges
+    ===================================================== */
+
+    .badge {
+        border-radius: 30px;
+        padding: .5rem .9rem;
+        font-size: .75rem;
+        font-weight: 600;
+        letter-spacing: .3px;
+    }
+
+    .bg-warning {
+        color: #000;
+    }
+
+    /* =====================================================
+       Action Buttons
+    ===================================================== */
+
+    .btn-group {
+        display: flex;
+        gap: .35rem;
+    }
+
+        .btn-group .btn {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: .25s;
+        }
+
+            .btn-group .btn:hover {
+                transform: translateY(-2px);
+            }
+
+    /* =====================================================
+       Empty State
+    ===================================================== */
+
+    .empty-state {
+        padding: 80px 20px;
+        text-align: center;
+    }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #cbd5e1;
+        }
+
+        .empty-state h5 {
+            margin-top: 1rem;
+            font-weight: 700;
+        }
+
+        .empty-state p {
+            color: #6b7280;
+        }
+
+    /* =====================================================
+       Appointment Modal
+    ===================================================== */
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1f2937;
+        padding-bottom: .75rem;
+        margin-bottom: 1.25rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+        .form-section-title i {
+            color: #0d6efd;
+        }
+
+    /* =====================================================
+       Labels
+    ===================================================== */
+
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: .45rem;
+    }
+
+    /* =====================================================
+       Inputs
+    ===================================================== */
+
+    .form-control,
+    .form-select {
+        min-height: 46px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        transition: .2s;
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 .15rem rgba(13,110,253,.15);
+        }
+
+    textarea.form-control {
+        min-height: 110px;
+        resize: vertical;
+    }
+
+    /* =====================================================
+       Date & Time Inputs
+    ===================================================== */
+
+    input[type="date"],
+    input[type="time"] {
+        cursor: pointer;
+    }
+
+    /* =====================================================
+       Required Field
+    ===================================================== */
+
+    .required::after {
+        content: " *";
+        color: red;
+    }
+
+    /* =====================================================
+       View Appointment Card
+    ===================================================== */
+
+    .view-card {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 18px;
+    }
+
+        .view-card h6 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+    .view-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: .85rem;
+    }
+
+        .view-row label {
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        .view-row span {
+            font-weight: 500;
+            color: #111827;
+        }
+
+    /* =====================================================
+       Responsive
+    ===================================================== */
+
+    @@media (max-width:992px) {
+
+        .table {
+            min-width: 1050px;
+        }
+
+        .btn-group {
+            flex-wrap: wrap;
+        }
+    }
+
+    @@media (max-width:768px) {
+
+        .icon-circle {
+            width: 50px;
+            height: 50px;
+        }
+
+            .icon-circle i {
+                font-size: 1.2rem;
+            }
+
+        .table tbody td {
+            padding: .85rem;
+        }
+
+        .btn-group .btn {
+            width: 34px;
+            height: 34px;
+        }
+
+        .form-section-title {
+            font-size: .95rem;
+        }
+    }
+
+    @@media (max-width:576px) {
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 44px;
+        }
+    }
+</style>
+<PageShell PageTitle="Appointments">
+
+    <!-- ===================================== -->
+    <!-- Statistics -->
+    <!-- ===================================== -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                Total Appointments
+                            </small>
+
+                            <h3 class="fw-bold mt-2">
+                                @Appointments.Count
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-primary">
+
+                            <i class="bi bi-calendar-check text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                Pending
+                            </small>
+
+                            <h3 class="fw-bold text-warning mt-2">
+                                @(filtered is not null ? filtered.Count(x=>x.Status=="Pending") : 0)
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-warning">
+
+                            <i class="bi bi-hourglass-split text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                Confirmed
+                            </small>
+
+                            <h3 class="fw-bold text-primary mt-2">
+                                @(filtered is not null ? filtered.Count(x=>x.Status=="Confirmed") : 0)
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-info">
+
+                            <i class="bi bi-check2-circle text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                Completed
+                            </small>
+
+                            <h3 class="fw-bold text-success mt-2">
+                                @(filtered is not null ? filtered.Count(x=>x.Status=="Completed") : 0)
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-success">
+
+                            <i class="bi bi-check-all text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- Toolbar -->
+    <!-- ===================================== -->
+
+    <PageToolbar
+
+        SearchPlaceholder="Search appointment..."
+
+        AddButtonText="New Appointment"
+
+        OnSearch="SearchAppointment"
+
+        OnAdd="OpenAddAppointment"
+
+        OnRefresh="LoadAppointments"/>
+
+    <!-- ===================================== -->
+    <!-- Appointment Table -->
+    <!-- ===================================== -->
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+
+                        <tr>
+
+                            <th>Patient</th>
+
+                            <th>Doctor</th>
+
+                            <th>Department</th>
+
+                            <th>Date</th>
+
+                            <th>Time</th>
+
+                            <th>Status</th>
+
+                            <th width="280">
+
+                                Actions
+
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @if(Appointments.Count == 0)
+                        {
+                            <tr>
+
+                                <td colspan="7">
+
+                                    <div class="text-center py-5">
+
+                                        <i class="bi bi-calendar-x fs-1 text-muted"></i>
+
+                                        <h5 class="mt-3">
+
+                                            No Appointments Found
+
+                                        </h5>
+
+                                        <p class="text-muted">
+
+                                            Click "New Appointment" to schedule one.
+
+                                        </p>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach(var appointment in filtered)
+                            {
+                                <tr>
+
+                                    <td>
+
+                                        <div class="fw-bold">
+
+                                            @appointment.PatientName
+
+                                        </div>
+
+                                        <small class="text-muted">
+
+                                            @appointment.PatientNumber
+
+                                        </small>
+
+                                    </td>
+
+                                    <td>
+
+                                        Dr. @appointment.DoctorName
+
+                                    </td>
+
+                                    <td>
+
+                                        @appointment.DepartmentName
+
+                                    </td>
+
+                                    <td>
+
+                                        @appointment.AppointmentDate.ToString("dd MMM yyyy")
+
+                                    </td>
+
+                                    <td>
+
+                                        @appointment.AppointmentTime
+
+                                    </td>
+
+                                    <td>
+
+                                        @switch (appointment.Status)
+                                        {
+                                            case "Pending":
+
+                                                <span class="badge bg-warning">
+
+                                                    Pending
+
+                                                </span>
+
+                                                break;
+
+                                            case "Confirmed":
+
+                                                <span class="badge bg-primary">
+
+                                                    Confirmed
+
+                                                </span>
+
+                                                break;
+
+                                            case "Completed":
+
+                                                <span class="badge bg-success">
+
+                                                    Completed
+
+                                                </span>
+
+                                                break;
+
+                                            case "Cancelled":
+
+                                                <span class="badge bg-danger">
+
+                                                    Cancelled
+
+                                                </span>
+
+                                                break;
+                                        }
+
+                                    </td>
+
+                                    <td>
+
+                                        <div class="btn-group">
+
+                                            <button class="btn btn-outline-primary btn-sm"
+
+                                                    title="Edit Appointment"
+
+                                                    @onclick="(()=>EditAppointment(appointment))">
+
+                                                <i class="bi bi-pencil-square"></i>
+
+                                            </button>
+
+                                            <button class="btn btn-outline-success btn-sm"
+
+                                                    title="Confirm Appointment"
+
+                                                    @onclick="(()=>ConfirmAppointment(appointment.Id))">
+
+                                                <i class="bi bi-check-circle"></i>
+
+                                            </button>
+
+                                            <button class="btn btn-outline-secondary btn-sm"
+
+                                                    title="View Details"
+
+                                                    @onclick="(()=>ViewAppointment(appointment.Id))">
+
+                                                <i class="bi bi-eye"></i>
+
+                                            </button>
+
+                                            <button class="btn btn-outline-danger btn-sm"
+
+                                                    title="Cancel Appointment"
+
+                                                    @onclick="(()=>CancelAppointment(appointment.Id))">
+
+                                                <i class="bi bi-x-circle"></i>
+
+                                            </button>
+
+                                            <button class="btn btn-outline-dark btn-sm"
+
+                                                    title="Delete Appointment"
+
+                                                    @onclick="(()=>DeleteAppointment(appointment.Id))">
+
+                                                <i class="bi bi-trash"></i>
+
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</PageShell>
+
+<AppModal
+
+    Visible="@showAppointmentModal"
+
+    Title="@ModalTitle"
+
+    Icon="bi bi-calendar-plus"
+
+    Size="CustomerModalSizeEnum.ExtraLarge"
+
+    SaveButtonText="@SaveButtonText"
+
+    IsSaving="@isSaving"
+
+    OnSave="SaveAppointment"
+
+    OnCancel="CloseAppointmentModal">
+
+    <div class="container-fluid">
+
+        <!-- ================================= -->
+        <!-- Patient Information -->
+        <!-- ================================= -->
+
+        <div class="form-section">
+
+            <div class="form-section-title">
+
+                <i class="bi bi-person-fill"></i>
+
+                Patient Information
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-lg-6">
+
+                    <label class="form-label required">
+
+                        Patient
+
+                    </label>
+
+                    <select class="form-select" @onchange="PatientChanged">
+
+                        <option value="">
+
+                            Select Patient
+
+                        </option>
+
+                        @foreach(var patient in Patients)
+                        {
+                            <option value="@patient.Id">
+
+                                @patient.FirstName @patient.LastName
+
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+                <div class="col-lg-6">
+
+                    <label class="form-label">
+
+                        Patient Number
+
+                    </label>
+
+                    <input class="form-control" @bind-value="patientNumber"
+
+                           readonly
+
+                           placeholder="Auto Filled" />
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================================= -->
+        <!-- Appointment Details -->
+        <!-- ================================= -->
+
+        <div class="form-section mt-4">
+
+            <div class="form-section-title">
+
+                <i class="bi bi-calendar-check"></i>
+
+                Appointment Details
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+
+                    <label class="form-label required">
+
+                        Department
+
+                    </label>
+
+                    <select class="form-select" @bind="appointment.DepartmentId">
+
+                        <option value="">
+
+                            Select Department
+
+                        </option>
+
+                        @foreach(var dept in Departments)
+                        {
+                            <option value="@dept.Id">
+
+                                @dept.DeptName
+
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <label class="form-label required">
+
+                        Doctor
+
+                    </label>
+
+                    <select class="form-select" @bind="appointment.DoctorId">
+
+                        <option value="">
+
+                            Select Doctor
+
+                        </option>
+
+                        @foreach(var doctor in Doctors)
+                        {
+                            <option value="@doctor.Id">
+
+                                Dr. @doctor.FirstName @doctor.LastName
+
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <label class="form-label required">
+
+                        Status
+
+                    </label>
+
+                    <select class="form-select" @bind="appointment.Status">
+
+                        <option value="Pending">Pending</option>
+
+                        <option value="Confirmed">Confirmed</option>
+
+                        <option value="Completed">Completed</option>
+
+                        <option value="Cancelled">Cancelled</option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <label class="form-label required">
+
+                        Appointment Date
+
+                    </label>
+
+                    <input type="date" @bind-value="appointment.AppointmentDate"
+
+                           class="form-control" />
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <label class="form-label required">
+
+                        Appointment Time
+
+                    </label>
+
+                    <input type="time" @bind-value="appointment.AppointmentTime"
+
+                           class="form-control" />
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================================= -->
+        <!-- Consultation -->
+        <!-- ================================= -->
+
+        <div class="form-section mt-4">
+
+            <div class="form-section-title">
+
+                <i class="bi bi-file-medical"></i>
+
+                Consultation
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-12">
+
+                    <label class="form-label required">
+
+                        Reason For Visit
+
+                    </label>
+
+                    <textarea class="form-control" @bind="appointment.Reason"
+
+                              rows="3"
+
+                              placeholder="Reason for appointment"></textarea>
+
+                </div>
+
+                <div class="col-12">
+
+                    <label class="form-label">
+
+                        Additional Notes
+
+                    </label>
+
+                    <textarea class="form-control" @bind="appointment.Note"
+
+                              rows="3"
+
+                              placeholder="Optional notes"></textarea>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</AppModal>
+
+@code {
+
+    #region Variables
+
+    private bool isLoading = true;
+    private bool isSaving = false;
+
+    private bool showAppointmentModal = false;
+    private bool showViewModal = false;
+
+    private bool isEdit = false;
+
+    private string searchText = string.Empty;
+
+    private MdPostAppointment appointment = new();
+
+    private string selectedAppointmentId, patientNumber, doctorNumber = string.Empty;
+    private MdGetAppointment selectedAppointment = new();
+
+    private List<MdGetAppointment> Appointments = new();
+    private IEnumerable<MdGetAppointment> filtered => Appointments.Where(d => d.DepartmentName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                           d.PatientName.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+
+    private List<MdGetPatient> Patients = new();
+
+    private List<DoctorGet> Doctors = new();
+
+
+    private List<DepartmentGet> Departments = new();
+
+    #endregion
+
+
+    #region Computed Properties
+
+    private string ModalTitle =>
+        isEdit ? "Update Appointment" : "New Appointment";
+
+    private string SaveButtonText =>
+        isEdit ? "Update Appointment" : "Schedule Appointment";
+
+    #endregion
+
+
+    #region Initialization
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPage();
+    }
+
+    #endregion
+
+
+    #region Load Data
+
+    private async Task LoadPage()
+    {
+        isLoading = true;
+
+        try
+        {
+            await LoadAppointments();
+
+            await LoadPatients();
+
+            await LoadDoctors();
+
+            await LoadDepartments();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadAppointments()
+    {
+        // Get all appointments
+    }
+
+    private async Task LoadPatients()
+    {
+        // Get patients
+    }
+
+    private async Task LoadDoctors()
+    {
+        // Get doctors
+        Doctors = await doctorService.GetDoctorsAsync();
+    }
+
+    private async Task LoadDepartments()
+    {
+        // Get departments
+        Departments = await departmentService.GetDepartments();
+    }
+
+    #endregion
+
+
+    #region Search
+
+    private async Task SearchAppointment(string keyword)
+    {
+        searchText = keyword;
+
+        // Search appointments
+    }
+
+    #endregion
+
+
+    #region Add Appointment
+
+    private void OpenAddAppointment()
+    {
+        isEdit = false;
+
+        appointment = new();
+
+        showAppointmentModal = true;
+    }
+
+    #endregion
+
+
+    #region Edit Appointment
+
+    private async Task EditAppointment(MdGetAppointment item)
+    {
+        isEdit = true;
+        selectedAppointmentId = item.Id;
+
+        appointment = new MdPostAppointment
+        {
+            DepartmentId = item.DepartmentId,
+            Status = item.Status,
+            DoctorId = item.DoctorId,
+            Reason = item.Reason,
+            Note = item.Note,
+            AppointmentDate = item.AppointmentDate,
+            AppointmentTime = item.AppointmentTime,
+
+        };
+
+        showAppointmentModal = true;
+    }
+
+    #endregion
+
+
+    #region Save Appointment
+
+    private async Task SaveAppointment()
+    {
+        if (string.IsNullOrEmpty(appointment.PatientId))
+        {
+            _message.Error("Select Patient");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(appointment.DoctorId))
+        {
+            _message.Error("Select Doctor");
+            return;
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.Today);
+
+        // Date is required
+        if (appointment.AppointmentDate == default)
+        {
+            _message.Error("Appointment date is required.");
+            return;
+        }
+
+        // Cannot select a past date
+        if (appointment.AppointmentDate < today)
+        {
+            _message.Error("Appointment date cannot be in the past.");
+            return;
+        }
+
+        // Optional: Prevent appointments more than 1 year ahead
+        if (appointment.AppointmentDate > today.AddYears(1))
+        {
+            _message.Error("Appointment date cannot be more than one year in advance.");
+            return;
+        }
+
+        // Time validation
+        if (appointment.AppointmentTime == default)
+        {
+            _message.Error("Appointment time is required.");
+            return;
+        }
+
+        // If appointment is today, time must be in the future
+        if (appointment.AppointmentDate == today)
+        {
+            var currentTime = TimeOnly.FromDateTime(DateTime.Now);
+
+            if (appointment.AppointmentTime <= currentTime)
+            {
+                _message.Error("Appointment time must be later than the current time.");
+                return;
+            }
+        }
+
+        if (string.IsNullOrEmpty(appointment.Status))
+        {
+            appointment.Status = "Pending";
+        }
+
+
+        isSaving = true;
+
+        try
+        {
+            if (isEdit)
+            {
+                if (string.IsNullOrEmpty(selectedAppointmentId))
+                {
+                    _message.Error("Select Appointment to be updated");
+                    return;
+                }
+                // Update Appointment
+            }
+            else
+            {
+                // Create Appointment
+            }
+
+            await LoadAppointments();
+
+            CloseAppointmentModal();
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    #endregion
+
+
+    #region Delete Appointment
+
+    private async Task DeleteAppointment(string id)
+    {
+        // Confirmation
+
+        // Delete
+
+        await LoadAppointments();
+    }
+
+    #endregion
+
+
+    #region View Appointment
+
+    private async Task ViewAppointment(string id)
+    {
+        // selectedAppointment =
+        // await AppointmentService.Get(id);
+
+        showViewModal = true;
+    }
+
+    private void CloseViewModal()
+    {
+        selectedAppointment = new();
+
+        showViewModal = false;
+    }
+
+    #endregion
+
+
+    #region Confirm Appointment
+
+    private async Task ConfirmAppointment(string id)
+    {
+        // Change Status to Confirmed
+
+        await LoadAppointments();
+    }
+
+    #endregion
+
+
+    #region Complete Appointment
+
+    private async Task CompleteAppointment(string id)
+    {
+        // Change Status to Completed
+
+        await LoadAppointments();
+    }
+
+    #endregion
+
+
+    #region Cancel Appointment
+
+    private async Task CancelAppointment(string id)
+    {
+        // Change Status to Cancelled
+
+        await LoadAppointments();
+    }
+
+    #endregion
+
+
+    #region Patient Changed
+
+    private async Task PatientChanged(ChangeEventArgs e)
+    {
+        appointment.PatientId = e.Value?.ToString();
+
+        var patient = Patients.FirstOrDefault(x => x.Id == appointment.PatientId);
+
+        if (patient != null)
+        {
+            patientNumber = patient.PhoneNumber!;
+        }
+    }
+
+    #endregion
+
+
+
+    #region Close Modal
+
+    private void CloseAppointmentModal()
+    {
+        showAppointmentModal = false;
+
+        appointment = new();
+
+        isEdit = false;
+    }
+
+    #endregion
+
+
+    #region Helpers
+
+    private string GetStatusBadge(string status)
+    {
+        return status switch
+        {
+            "Pending" => "warning",
+
+            "Confirmed" => "primary",
+
+            "Completed" => "success",
+
+            "Cancelled" => "danger",
+
+            _ => "secondary"
+        };
+    }
+
+    private string FormatTime(TimeSpan? time)
+    {
+        if (time == null)
+            return "";
+
+        return DateTime.Today
+            .Add(time.Value)
+            .ToString("hh:mm tt");
+    }
+
+    private string FormatDate(DateTime? date)
+    {
+        if (date == null)
+            return "";
+
+        return date.Value.ToString("dd MMM yyyy");
+    }
+
+    private bool IsPastAppointment(DateTime date)
+    {
+        return date.Date < DateTime.Today;
+    }
+
+    #endregion
+
+}

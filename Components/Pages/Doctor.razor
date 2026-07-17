@@ -541,8 +541,10 @@
 
         if (!response)
         {
-            if(isEdit)
+            if (isEdit)
+            {
                 _message.Error("Failed to update doctor. Please try again.");
+            }
             else
             {
                 
