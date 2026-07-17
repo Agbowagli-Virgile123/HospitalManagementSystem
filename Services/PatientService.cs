@@ -5,7 +5,10 @@ namespace HospitalManagementSystem.Services
 {
     public interface IPatient
     {
-
+        Task<bool> CreatePatientAsync(MdPostPatient patient);
+        Task<bool> UpdatePatientAsync(string patientId, MdPostPatient patient);
+        Task<List<MdGetPatient>> GetPatientsAsync(string? search = null);
+        Task<MdGetPatient?> GetPatientAsync(string patientId);
     }
     public class PatientService(IPatientRepository repo) : IPatient
     {

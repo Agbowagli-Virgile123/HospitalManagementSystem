@@ -23,7 +23,7 @@ namespace HospitalManagementSystem.Repository
                 FirstName,
                 LastName,
                 Gender,
-                DOB,
+                DateOfBirth,
                 PhoneNumber,
                 Email,
                 Address,
@@ -89,7 +89,7 @@ namespace HospitalManagementSystem.Repository
                     FirstName=@FirstName,
                     LastName=@LastName,
                     Gender=@Gender,
-                    DOB=@DOB,
+                    DateOfBirth=@DOB,
                     PhoneNumber=@PhoneNumber,
                     Email=@Email,
                     Address=@Address,
@@ -198,7 +198,7 @@ namespace HospitalManagementSystem.Repository
                 FirstName = reader["FirstName"].ToString(),
                 LastName = reader["LastName"].ToString(),
                 Gender = reader["Gender"]?.ToString(),
-                DOB = DateOnly.FromDateTime(Convert.ToDateTime(reader["DOB"])),
+                DOB = DateOnly.FromDateTime(Convert.ToDateTime(reader["DateOfBirth"])),
                 PhoneNumber = reader["PhoneNumber"]?.ToString(),
                 Email = reader["Email"]?.ToString(),
                 Address = reader["Address"]?.ToString(),
@@ -210,6 +210,7 @@ namespace HospitalManagementSystem.Repository
                 Country = reader["Country"]?.ToString(),
                 Nationality = reader["Nationality"]?.ToString(),
                 Status = reader["Status"]?.ToString(),
+                AllergyDescription = reader["AllergyDescription"]?.ToString(),
                 CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
             };
         }

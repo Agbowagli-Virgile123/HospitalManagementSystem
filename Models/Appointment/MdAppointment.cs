@@ -14,7 +14,7 @@
     {
         public string PatientId { get; set; } = string.Empty;
         public string DepartmentId { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
+        public string Status { get; set; } = "Pending";
         public string? DoctorId { get; set; }
         public string? Reason { get; set; }
         public string? Note { get; set; }

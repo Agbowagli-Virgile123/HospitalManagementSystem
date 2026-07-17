@@ -9,7 +9,7 @@
 @layout HospitalManagementSystem.Components.Layout.MainLayout
 @inject HospitalManagementSystem.Interfaces.IDoctor doctorService
 @inject IDepartment departmentService
-
+@inject IPatient patientServices
 <style>
     /* =====================================================
        Statistics Cards
@@ -1061,6 +1061,7 @@
     private async Task LoadPatients()
     {
         // Get patients
+        Patients = await patientServices.GetPatientsAsync();
     }
 
     private async Task LoadDoctors()

@@ -4,6 +4,7 @@
 @using HospitalManagementSystem.Components.Shared.Modal
 @using HospitalManagementSystem.Models
 @using HospitalManagementSystem.Models.Patients
+@inject HospitalManagementSystem.Services.IPatient patientServices
 
 <style>
     /* ===========================================
@@ -609,14 +610,14 @@
 
                                             </button>
 
-                                            <button class="btn btn-outline-danger btn-sm"
+                                            @* <button class="btn btn-outline-danger btn-sm"
                                                     title="Delete"
 
                                                     @onclick="(()=>DeletePatient(patient.Id))">
 
                                                 <i class="bi bi-trash"></i>
 
-                                            </button>
+                                            </button> *@
 
                                         </div>
 
@@ -711,9 +712,9 @@
 
                     <select class="form-select" @bind="patient.Gender">
 
-                        <option>Male</option>
+                        <option value="Male">Male</option>
 
-                        <option>Female</option>
+                        <option value="Female">Female</option>
 
                     </select>
 
@@ -873,6 +874,7 @@
                         <option value="">--- Select Marital Status ---</option>
                         <option value="Single">Single</option>
                         <option value="Married">Married</option>
+                        <option value="Divorced">Divorced</option>
 
                     </select>
 
@@ -1034,7 +1036,7 @@
         {
             // Call API
 
-            // Patients = await PatientService.GetPatients();
+            Patients = await patientServices.GetPatientsAsync();
 
         }
         catch (Exception ex)
@@ -1138,15 +1140,17 @@
             return;
         }
 
-        if (string.IsNullOrEmpty(patient.Status))
-        {
-            _message.Error(" is required");
-            return;
-        }
 
         if (patient.DOB == default)
         {
             _message.Error("Invalid Date Of Birth");
+            return;
+        }
+
+        // Cannot select a future date
+        if (patient.DOB > DateOnly.FromDateTime(DateTime.Now))
+        {
+            _message.Error("Date of birth cannot be in the future.");
             return;
         }
 
@@ -1172,14 +1176,14 @@
                     return;
                 }
 
-                // await PatientService.Update(patient);
+                response = await patientServices.UpdatePatientAsync(selectedPatientId,patient);
 
             }
             else
             {
                 // Create Patient
 
-                // await PatientService.Create(patient);
+                response =  await patientServices.CreatePatientAsync(patient);
 
             }
 
@@ -1267,7 +1271,7 @@
         showPatientModal = false;
 
         patient = new();
-
+        selectedPatientId = string.Empty;
         isEdit = false;
 
     }
