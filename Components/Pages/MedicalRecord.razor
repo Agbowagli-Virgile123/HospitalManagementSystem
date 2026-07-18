@@ -1,0 +1,1394 @@
+﻿@page "/medical-records"
+@layout HospitalManagementSystem.Components.Layout.MainLayout
+@using HospitalManagementSystem.Components.Shared
+@using HospitalManagementSystem.Components.Shared.Modal
+@using HospitalManagementSystem.Models
+@using HospitalManagementSystem.Models.Appointment
+@using HospitalManagementSystem.Models.Doctor
+@using HospitalManagementSystem.Models.MedicalRecord
+@using HospitalManagementSystem.Models.Patients
+@inject HospitalManagementSystem.Interfaces.IDoctor doctorService
+@inject IPatient patientServices
+
+<style>
+    /* ==========================================================
+       Statistics Cards
+    ========================================================== */
+
+    .icon-circle {
+        width: 58px;
+        height: 58px;
+        border-radius: 14px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .icon-circle i {
+            font-size: 1.4rem;
+        }
+
+    .card {
+        border-radius: 14px;
+        transition: all .25s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 .75rem 1.5rem rgba(0,0,0,.08) !important;
+        }
+
+    /* ==========================================================
+       Table
+    ========================================================== */
+
+    .table {
+        margin-bottom: 0;
+    }
+
+        .table thead th {
+            background: #f8fafc;
+            color: #374151;
+            font-weight: 700;
+            font-size: .92rem;
+            white-space: nowrap;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .table tbody tr {
+            transition: .2s;
+        }
+
+            .table tbody tr:hover {
+                background: #f8fbff;
+            }
+
+    /* ==========================================================
+       Patient
+    ========================================================== */
+
+    .patient-name {
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .patient-number {
+        font-size: .82rem;
+        color: #6b7280;
+    }
+
+    /* ==========================================================
+       Diagnosis
+    ========================================================== */
+
+    .diagnosis {
+        max-width: 260px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 500;
+    }
+
+    /* ==========================================================
+       Buttons
+    ========================================================== */
+
+    .btn-group {
+        display: flex;
+        gap: .4rem;
+    }
+
+        .btn-group .btn {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            transition: .25s;
+        }
+
+            .btn-group .btn:hover {
+                transform: translateY(-2px);
+            }
+
+    /* ==========================================================
+       Empty State
+    ========================================================== */
+
+    .empty-state {
+        padding: 70px 20px;
+        text-align: center;
+    }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #cbd5e1;
+        }
+
+        .empty-state h5 {
+            margin-top: 1rem;
+            font-weight: 700;
+        }
+
+        .empty-state p {
+            color: #6b7280;
+        }
+
+    /* ==========================================================
+       Form Sections
+    ========================================================== */
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1f2937;
+        padding-bottom: .75rem;
+        margin-bottom: 1.25rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+        .form-section-title i {
+            color: #0d6efd;
+            font-size: 1.1rem;
+        }
+
+    /* ==========================================================
+       Labels
+    ========================================================== */
+
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: .45rem;
+    }
+
+    /* ==========================================================
+       Inputs
+    ========================================================== */
+
+    .form-control,
+    .form-select {
+        min-height: 46px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        transition: .2s;
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 .15rem rgba(13,110,253,.15);
+        }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    /* ==========================================================
+       Readonly Controls
+    ========================================================== */
+
+    .form-control:read-only {
+        background: #f8f9fa;
+    }
+
+    /* ==========================================================
+       Required Label
+    ========================================================== */
+
+    .required::after {
+        content: " *";
+        color: red;
+    }
+
+    /* ==========================================================
+       View Record Card
+    ========================================================== */
+
+    .record-summary {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+        .record-summary h6 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+    .record-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: .8rem;
+    }
+
+        .record-item label {
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        .record-item span {
+            font-weight: 500;
+            color: #111827;
+        }
+
+    /* ==========================================================
+       Medical Text Areas
+    ========================================================== */
+
+    .medical-text {
+        min-height: 120px;
+    }
+
+    /* ==========================================================
+       Responsive
+    ========================================================== */
+
+    @@media (max-width:992px) {
+
+        .table {
+            min-width: 1100px;
+        }
+
+        .btn-group {
+            flex-wrap: wrap;
+        }
+    }
+
+    @@media (max-width:768px) {
+
+        .icon-circle {
+            width: 50px;
+            height: 50px;
+        }
+
+            .icon-circle i {
+                font-size: 1.2rem;
+            }
+
+        .table tbody td {
+            padding: .85rem;
+        }
+
+        .btn-group .btn {
+            width: 34px;
+            height: 34px;
+        }
+
+        .form-section-title {
+            font-size: .95rem;
+        }
+    }
+
+    @@media (max-width:576px) {
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 44px;
+        }
+    }
+</style>
+
+<PageShell PageTitle="Medical Records">
+
+    <!-- ===================================== -->
+    <!-- Statistics -->
+    <!-- ===================================== -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                Total Records
+                            </small>
+
+                            <h3 class="fw-bold mt-2">
+
+                                @(filtered is not null ? filtered.Count() : 0)
+
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-primary">
+
+                            <i class="bi bi-file-earmark-medical text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <small class="text-muted">
+
+                                Today's Records
+
+                            </small>
+
+                            <h3 class="fw-bold text-success mt-2">
+
+                                @(filtered is not null ? filtered.Count(x=>x.RecordDate.Date==DateTime.Today) : 0)
+
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-success">
+
+                            <i class="bi bi-calendar2-check text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <small class="text-muted">
+
+                                Diagnoses
+
+                            </small>
+
+                            <h3 class="fw-bold text-warning mt-2">
+
+                                @(filtered is not null ? filtered.Count() : 0)
+
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-warning">
+
+                            <i class="bi bi-clipboard2-pulse text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <small class="text-muted">
+
+                                Follow Up
+
+                            </small>
+
+                            <h3 class="fw-bold text-info mt-2">
+
+                                @(filtered is not null ? filtered.Count(x=>x.NextVisit != null) : 0)
+
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-info">
+
+                            <i class="bi bi-arrow-repeat text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- Toolbar -->
+    <!-- ===================================== -->
+
+    <PageToolbar
+
+        SearchPlaceholder="Search patient..."
+
+        AddButtonText="New Medical Record"
+
+        OnSearch="SearchMedicalRecord"
+
+        OnAdd="OpenAddMedicalRecord"
+
+        OnRefresh="LoadMedicalRecords"/>
+
+    <!-- ===================================== -->
+    <!-- Table -->
+    <!-- ===================================== -->
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+
+                        <tr>
+
+                            <th>Patient</th>
+
+                            <th>Doctor</th>
+
+                            <th>Diagnosis</th>
+
+                            <th>Date</th>
+
+                            <th>Next Visit</th>
+
+                            <th width="280">
+
+                                Actions
+
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @if(MedicalRecords.Count==0)
+                        {
+                            <tr>
+
+                                <td colspan="6">
+
+                                    <div class="text-center py-5">
+
+                                        <i class="bi bi-file-earmark-medical fs-1 text-muted"></i>
+
+                                        <h5 class="mt-3">
+
+                                            No Medical Records
+
+                                        </h5>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach(var record in filtered)
+                            {
+
+                                <tr>
+
+                                    <td>
+
+                                        <div class="fw-bold">
+
+                                            @record.PatientName
+
+                                        </div>
+
+                                        <small class="text-muted">
+
+                                            @record.PatientNumber
+
+                                        </small>
+
+                                    </td>
+
+                                    <td>
+
+                                        Dr. @record.DoctorName
+
+                                    </td>
+
+                                    <td>
+
+                                        @record.Diagnosis
+
+                                    </td>
+
+                                    <td>
+
+                                        @record.RecordDate.ToString("dd MMM yyyy")
+
+                                    </td>
+
+                                    <td>
+
+                                        @(record.NextVisit?.ToString("dd MMM yyyy"))
+
+                                    </td>
+
+                                    <td>
+
+                                        <div class="btn-group">
+
+                                            <button class="btn btn-outline-primary btn-sm"
+
+                                                    @onclick="(()=>EditMedicalRecord(record))">
+
+                                                <i class="bi bi-pencil-square"></i>
+
+                                            </button>
+
+                                            <button class="btn btn-outline-success btn-sm"
+
+                                                    @onclick="(()=>ViewMedicalRecord(record.Id))">
+
+                                                <i class="bi bi-eye"></i>
+
+                                            </button>
+
+                                            <button class="btn btn-outline-warning btn-sm"
+
+                                                    @onclick="(()=>PrintMedicalRecord(record.Id))">
+
+                                                <i class="bi bi-printer"></i>
+
+                                            </button>
+
+                                            <button class="btn btn-outline-danger btn-sm"
+
+                                                    @onclick="(()=>DeleteMedicalRecord(record.Id))">
+
+                                                <i class="bi bi-trash"></i>
+
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            }
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</PageShell>
+
+<AppModal
+
+    Visible="@showMedicalRecordModal"
+
+    Title="@ModalTitle"
+
+    Icon="bi bi-file-earmark-medical"
+
+    Size="CustomerModalSizeEnum.ExtraLarge"
+
+    SaveButtonText="@SaveButtonText"
+
+    IsSaving="@isSaving"
+
+    OnSave="SaveMedicalRecord"
+
+    OnCancel="CloseMedicalRecordModal">
+
+    <div class="container-fluid">
+
+        <!-- ========================================= -->
+        <!-- Patient Information -->
+        <!-- ========================================= -->
+
+        <div class="form-section">
+
+            <div class="form-section-title">
+
+                <i class="bi bi-person-fill"></i>
+
+                Patient Information
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-lg-6">
+
+                    <label class="form-label required">
+
+                        Patient
+
+                    </label>
+
+                    <select class="form-select" @bind="medicalRecord.PatientId">
+
+                        <option value="">Select Patient</option>
+
+                        @foreach(var patient in Patients)
+                        {
+                            <option value="@patient.Id">
+
+                                @patient.FirstName @patient.LastName
+
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+                <div class="col-lg-3">
+
+                    <label class="form-label">
+
+                        Patient Number
+
+                    </label>
+
+                    <input class="form-control" @bind-value="patientNumber"
+
+                           readonly
+
+                           placeholder="Auto Filled"/>
+
+                </div>
+
+                <div class="col-lg-3">
+
+                    <label class="form-label">
+
+                        Record Date
+
+                    </label>
+
+                    <input type="date" @bind-value="medicalRecord.RecordDate"
+
+                           class="form-control"/>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ========================================= -->
+        <!-- Vital Signs -->
+        <!-- ========================================= -->
+
+        <div class="form-section mt-4">
+
+            <div class="form-section-title">
+
+                <i class="bi bi-heart-pulse"></i>
+
+                Vital Signs
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-md-2">
+
+                    <label class="form-label">
+
+                        Temperature
+
+                    </label>
+
+                    <input class="form-control" @bind-value="medicalRecord.Temperature"
+
+                           placeholder="°C"/>
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <label class="form-label">
+
+                        Pulse
+
+                    </label>
+
+                    <input class="form-control" @bind-value="medicalRecord.Pulse"
+
+                           placeholder="bpm"/>
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <label class="form-label">
+
+                        Blood Pressure
+
+                    </label>
+
+                    <input class="form-control" @bind-value="medicalRecord.BloodPressure"
+
+                           placeholder="120/80"/>
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <label class="form-label">
+
+                        Weight
+
+                    </label>
+
+                    <input class="form-control" @bind-value="medicalRecord.Weight"
+
+                           placeholder="kg"/>
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <label class="form-label">
+
+                        Height
+
+                    </label>
+
+                    <input class="form-control" @bind-value="medicalRecord.Height"
+
+                           placeholder="cm"/>
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <label class="form-label">
+
+                        Blood Group
+
+                    </label>
+
+                    <input class="form-control" @bind-value="medicalRecord.BloodGroup" />
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ========================================= -->
+        <!-- Clinical Examination -->
+        <!-- ========================================= -->
+
+        <div class="form-section mt-4">
+
+            <div class="form-section-title">
+
+                <i class="bi bi-hospital"></i>
+
+                Clinical Examination
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-md-6">
+
+                    <label class="form-label required">
+
+                        Doctor
+
+                    </label>
+
+                    <select class="form-select" @bind="medicalRecord.DoctorId"> 
+
+                        <option value="">Select Doctor</option>
+
+                        @foreach(var doctor in Doctors)
+                        {
+                            <option value="@doctor.Id">
+
+                                Dr. @doctor.FirstName @doctor.LastName
+
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+
+                        Appointment
+
+                    </label>
+
+                    <select class="form-select">
+
+                        <option value="">Select Appointment</option>
+
+                        @foreach(var appointment in Appointments)
+                        {
+                            <option value="@appointment.Id">
+
+                                @appointment.AppointmentDate.ToShortDateString()
+
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+                <div class="col-12">
+
+                    <label class="form-label required">
+
+                        Symptoms
+
+                    </label>
+
+                    <textarea class="form-control medical-text" @bind="medicalRecord.Symptoms"
+
+                              rows="3"></textarea>
+
+                </div>
+
+                <div class="col-12">
+
+                    <label class="form-label required">
+
+                        Diagnosis
+
+                    </label>
+
+                    <textarea class="form-control medical-text" @bind="medicalRecord.Diagnosis"
+
+                              rows="3"></textarea>
+
+                </div>
+
+                <div class="col-12">
+
+                    <label class="form-label">
+
+                        Doctor's Notes
+
+                    </label>
+
+                    <textarea class="form-control medical-text" @bind="medicalRecord.Note"
+
+                              rows="3"></textarea>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ========================================= -->
+        <!-- Treatment -->
+        <!-- ========================================= -->
+
+        <div class="form-section mt-4">
+
+            <div class="form-section-title">
+
+                <i class="bi bi-capsule-pill"></i>
+
+                Treatment & Prescription
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-12">
+
+                    <label class="form-label">
+
+                        Treatment
+
+                    </label>
+
+                    <textarea class="form-control medical-text" @bind="medicalRecord.Treatment"
+
+                              rows="3"></textarea>
+
+                </div>
+
+                <div class="col-12">
+
+                    <label class="form-label">
+
+                        Prescription
+
+                    </label>
+
+                    <textarea class="form-control medical-text" @bind="medicalRecord.Prescription"
+
+                              rows="3"></textarea>
+
+                </div>
+
+                <div class="col-12">
+
+                    <label class="form-label">
+
+                        Laboratory Test
+
+                    </label>
+
+                    <textarea class="form-control" @bind="medicalRecord.LaboratoryTest"
+
+                              rows="2"></textarea>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ========================================= -->
+        <!-- Follow Up -->
+        <!-- ========================================= -->
+
+        <div class="form-section mt-4">
+
+            <div class="form-section-title">
+
+                <i class="bi bi-calendar-event"></i>
+
+                Follow Up
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+
+                    <label class="form-label">
+
+                        Next Visit
+
+                    </label>
+
+                    <input type="date" @bind="medicalRecord.NextVisit"
+
+                           class="form-control"/>
+
+                </div>
+
+                <div class="col-md-8">
+
+                    <label class="form-label">
+
+                        Remarks
+
+                    </label>
+
+                    <input class="form-control" @bind-value="medicalRecord.Remarks"
+
+                           placeholder="Follow-up instructions"/>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</AppModal>
+
+@code {
+
+    #region Variables
+    [SupplyParameterFromQuery]
+    public string? PatientId { get; set; }
+    private bool isLoading = true;
+    private bool isSaving = false;
+
+    private bool showMedicalRecordModal = false;
+    private bool showViewModal = false;
+
+    private bool isEdit = false;
+
+    private string searchText = string.Empty;
+
+    private MdPostMedicalRecord medicalRecord = new();
+
+    private string selectedMedicalRecordId, patientNumber = string.Empty;
+
+    private List<MdGetMedicaRecord> MedicalRecords = new();
+    private IEnumerable<MdGetMedicaRecord> filtered => MedicalRecords.Where(d => d.PatientName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                            d.AppointmentName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                           d.DoctorName.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+
+    private List<MdGetPatient> Patients = new();
+
+    private List<DoctorGet> Doctors = new();
+
+    private List<MdGetAppointment> Appointments = new();
+
+    #endregion
+
+
+    #region Computed Properties
+
+    private string ModalTitle =>
+        isEdit ? "Update Medical Record" : "New Medical Record";
+
+    private string SaveButtonText =>
+        isEdit ? "Update Record" : "Save Record";
+
+    #endregion
+
+
+    #region Initialization
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(PatientId))
+        {
+            // Load only this patient's records
+            Console.Write($"Patient id is {PatientId}");
+        }
+        else
+        {
+            // Load all records
+            await LoadPage();
+        }
+    }
+
+
+
+
+    #endregion
+
+
+    #region Load Data
+
+    private async Task LoadPage()
+    {
+        isLoading = true;
+
+        try
+        {
+            await LoadMedicalRecords();
+            await LoadPatients();
+            await LoadDoctors();
+            await LoadAppointments();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadMedicalRecords()
+    {
+        // Load all medical records
+    }
+
+    private async Task LoadPatients()
+    {
+        // Load patients
+        Patients = await patientServices.GetPatientsAsync();
+    }
+
+    private async Task LoadDoctors()
+    {
+        // Load doctors
+        Doctors = await doctorService.GetDoctorsAsync();
+    }
+
+    private async Task LoadAppointments()
+    {
+        // Load appointments
+    }
+
+    #endregion
+
+
+    #region Search
+
+    private async Task SearchMedicalRecord(string keyword)
+    {
+        searchText = keyword;
+
+        // Search medical records
+    }
+
+    #endregion
+
+
+    #region Add
+
+    private void OpenAddMedicalRecord()
+    {
+        isEdit = false;
+
+        medicalRecord = new();
+
+        showMedicalRecordModal = true;
+    }
+
+    #endregion
+
+
+    #region Edit
+
+    private async Task EditMedicalRecord(MdGetMedicaRecord item)
+    {
+        isEdit = true;
+
+        // medicalRecord = await MedicalRecordService.Get(item.Id);
+
+        medicalRecord = item;
+
+        showMedicalRecordModal = true;
+    }
+
+    #endregion
+
+
+    #region Save
+
+    private async Task SaveMedicalRecord()
+    {
+        isSaving = true;
+
+        try
+        {
+
+            if (isEdit)
+            {
+                // Update Record
+            }
+            else
+            {
+                // Create Record
+            }
+
+            await LoadMedicalRecords();
+
+            CloseMedicalRecordModal();
+
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    #endregion
+
+
+    #region Delete
+
+    private async Task DeleteMedicalRecord(string id)
+    {
+        // Confirmation Dialog
+
+        // Delete Record
+
+        await LoadMedicalRecords();
+    }
+
+    #endregion
+
+
+    #region View Record
+
+    private async Task ViewMedicalRecord(string id)
+    {
+        // selectedMedicalRecord =
+        // await MedicalRecordService.Get(id);
+
+        showViewModal = true;
+    }
+
+    private void CloseViewModal()
+    {
+        selectedMedicalRecordId = string.Empty;
+
+        showViewModal = false;
+    }
+
+    #endregion
+
+
+    #region Print
+
+    private async Task PrintMedicalRecord(string id)
+    {
+        // Generate PDF
+
+        // Print Record
+    }
+
+    #endregion
+
+
+    #region Patient Changed
+
+    private async Task PatientChanged(ChangeEventArgs e)
+    {
+        medicalRecord.PatientId = e.Value?.ToString();
+
+        var patient = Patients.FirstOrDefault(x => x.Id == medicalRecord.PatientId);
+
+        if (patient != null)
+        {
+            patientNumber = patient.PhoneNumber!;
+        }
+    }
+
+    #endregion
+
+
+    #region Doctor Changed
+
+    private async Task DoctorChanged(ChangeEventArgs e)
+    {
+        var doctorId = e.Value?.ToString();
+
+        // Load doctor details
+    }
+
+    #endregion
+
+
+    #region Appointment Changed
+
+    private async Task AppointmentChanged(ChangeEventArgs e)
+    {
+        var appointmentId = e.Value?.ToString();
+
+        // Load appointment information
+    }
+
+    #endregion
+
+
+    #region Close Modal
+
+    private void CloseMedicalRecordModal()
+    {
+        medicalRecord = new();
+
+        isEdit = false;
+
+        showMedicalRecordModal = false;
+    }
+
+    #endregion
+
+
+    #region Helpers
+
+    private string FormatDate(DateTime? date)
+    {
+        if (date == null)
+            return "";
+
+        return date.Value.ToString("dd MMM yyyy");
+    }
+
+    private string GetInitials(string firstName, string lastName)
+    {
+        string initials = "";
+
+        if (!string.IsNullOrWhiteSpace(firstName))
+            initials += firstName[0];
+
+        if (!string.IsNullOrWhiteSpace(lastName))
+            initials += lastName[0];
+
+        return initials.ToUpper();
+    }
+
+    private int CalculateAge(DateTime dob)
+    {
+        var age = DateTime.Today.Year - dob.Year;
+
+        if (dob.Date > DateTime.Today.AddYears(-age))
+            age--;
+
+        return age;
+    }
+
+    #endregion
+
+}

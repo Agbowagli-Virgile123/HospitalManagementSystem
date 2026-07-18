@@ -334,7 +334,7 @@
                             </small>
 
                             <h3 class="fw-bold mt-2">
-                                @Appointments.Count
+                                @(filtered is not null ? filtered.Count() : 0)
                             </h3>
 
                         </div>
