@@ -1,0 +1,1362 @@
+﻿@* @page "/prescriptions"
+
+@using HospitalManagementSystem.Models.Prescription
+
+<PageTitle>Prescriptions</PageTitle>
+
+<style>
+    /* ==========================================================
+       Statistics Cards
+    ========================================================== */
+
+    .icon-circle {
+        width: 58px;
+        height: 58px;
+        border-radius: 14px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .icon-circle i {
+            font-size: 1.4rem;
+        }
+
+    .card {
+        border-radius: 14px;
+        transition: all .25s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 .75rem 1.5rem rgba(0,0,0,.08) !important;
+        }
+
+    /* ==========================================================
+       Table
+    ========================================================== */
+
+    .table {
+        margin-bottom: 0;
+    }
+
+        .table thead th {
+            background: #f8fafc;
+            color: #374151;
+            font-weight: 700;
+            font-size: .92rem;
+            white-space: nowrap;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .table tbody tr {
+            transition: .2s;
+        }
+
+            .table tbody tr:hover {
+                background: #f8fbff;
+            }
+
+    /* ==========================================================
+       Prescription Number
+    ========================================================== */
+
+    .prescription-number {
+        font-weight: 700;
+        color: #2563eb;
+    }
+
+    /* ==========================================================
+       Patient
+    ========================================================== */
+
+    .patient-name {
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    /* ==========================================================
+       Doctor
+    ========================================================== */
+
+    .doctor-name {
+        color: #374151;
+        font-weight: 600;
+    }
+
+    /* ==========================================================
+       Status Badges
+    ========================================================== */
+
+    .badge {
+        padding: .55rem .85rem;
+        border-radius: 30px;
+        font-size: .75rem;
+    }
+
+    /* ==========================================================
+       Action Buttons
+    ========================================================== */
+
+    .btn-group {
+        display: flex;
+        gap: .4rem;
+    }
+
+        .btn-group .btn {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            transition: .25s;
+        }
+
+            .btn-group .btn:hover {
+                transform: translateY(-2px);
+            }
+
+    /* ==========================================================
+       Empty State
+    ========================================================== */
+
+    .empty-state {
+        text-align: center;
+        padding: 70px 20px;
+    }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #cbd5e1;
+        }
+
+        .empty-state h5 {
+            margin-top: 1rem;
+            font-weight: 700;
+        }
+
+        .empty-state p {
+            color: #6b7280;
+        }
+
+    /* ==========================================================
+       Form Sections
+    ========================================================== */
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1f2937;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: .75rem;
+        margin-bottom: 1.25rem;
+    }
+
+        .form-section-title i {
+            color: #0d6efd;
+            font-size: 1.1rem;
+        }
+
+    /* ==========================================================
+       Labels
+    ========================================================== */
+
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: .45rem;
+    }
+
+    .required::after {
+        content: " *";
+        color: red;
+    }
+
+    /* ==========================================================
+       Inputs
+    ========================================================== */
+
+    .form-control,
+    .form-select {
+        min-height: 46px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        transition: .2s;
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 .15rem rgba(13,110,253,.15);
+        }
+
+    textarea.form-control {
+        resize: vertical;
+    }
+
+    /* ==========================================================
+       Prescription Medication Table
+    ========================================================== */
+
+    .prescription-table {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+        .prescription-table table {
+            margin-bottom: 0;
+        }
+
+        .prescription-table thead {
+            background: #f8fafc;
+        }
+
+        .prescription-table th,
+        .prescription-table td {
+            padding: .85rem;
+            vertical-align: middle;
+        }
+
+        .prescription-table input,
+        .prescription-table select {
+            min-height: 40px;
+        }
+
+    /* ==========================================================
+       Summary Card
+    ========================================================== */
+
+    .prescription-summary {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+        .prescription-summary h6 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: .85rem;
+    }
+
+        .summary-item label {
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        .summary-item span {
+            font-weight: 500;
+            color: #111827;
+        }
+
+    /* ==========================================================
+       Responsive
+    ========================================================== */
+
+    @media (max-width:992px) {
+
+        .table {
+            min-width: 1100px;
+        }
+
+        .btn-group {
+            flex-wrap: wrap;
+        }
+
+        .prescription-table {
+            overflow-x: auto;
+        }
+    }
+
+    @media (max-width:768px) {
+
+        .icon-circle {
+            width: 50px;
+            height: 50px;
+        }
+
+            .icon-circle i {
+                font-size: 1.2rem;
+            }
+
+        .table tbody td {
+            padding: .85rem;
+        }
+
+        .btn-group .btn {
+            width: 34px;
+            height: 34px;
+        }
+
+        .form-section-title {
+            font-size: .95rem;
+        }
+    }
+
+    @media (max-width:576px) {
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 44px;
+        }
+    }
+</style>
+
+<Content PageTitle="Prescriptions">
+
+    <!-- ===================================== -->
+    <!-- Statistics -->
+    <!-- ===================================== -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+
+                                Total Prescriptions
+
+                            </small>
+
+                            <h3 class="fw-bold mt-2">
+
+                                @Prescriptions.Count
+
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-primary">
+
+                            <i class="bi bi-journal-medical text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+
+                                Today's Prescriptions
+
+                            </small>
+
+                            <h3 class="fw-bold text-success mt-2">
+
+                                @Prescriptions.Count(x=>x.PrescriptionDate.Date==DateTime.Today)
+
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-success">
+
+                            <i class="bi bi-calendar-check text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+
+                                Active
+
+                            </small>
+
+                            <h3 class="fw-bold text-info mt-2">
+
+                                @Prescriptions.Count(x=>x.Status=="Active")
+
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-info">
+
+                            <i class="bi bi-capsule-pill text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+
+                                Completed
+
+                            </small>
+
+                            <h3 class="fw-bold text-warning mt-2">
+
+                                @Prescriptions.Count(x=>x.Status=="Completed")
+
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-warning">
+
+                            <i class="bi bi-check-circle text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- Toolbar -->
+    <!-- ===================================== -->
+
+    <PageToolbar
+
+        SearchPlaceholder="Search prescription..."
+
+        AddButtonText="New Prescription"
+
+        OnSearch="SearchPrescription"
+
+        OnAdd="OpenAddPrescription"
+
+        OnRefresh="LoadPrescriptions"/>
+
+    <!-- ===================================== -->
+    <!-- Table -->
+    <!-- ===================================== -->
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+
+                        <tr>
+
+                            <th>Prescription No.</th>
+
+                            <th>Patient</th>
+
+                            <th>Doctor</th>
+
+                            <th>Date</th>
+
+                            <th>Items</th>
+
+                            <th>Status</th>
+
+                            <th width="270">
+
+                                Actions
+
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @if(Prescriptions.Count == 0)
+                        {
+                            <tr>
+
+                                <td colspan="7">
+
+                                    <div class="empty-state">
+
+                                        <i class="bi bi-journal-medical"></i>
+
+                                        <h5>
+
+                                            No Prescriptions Found
+
+                                        </h5>
+
+                                        <p>
+
+                                            Click "New Prescription" to create one.
+
+                                        </p>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach(var prescription in Prescriptions)
+                            {
+
+                                <tr>
+
+                                    <td>
+
+                                        <span class="fw-bold">
+
+                                            @prescription.PrescriptionNumber
+
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        @prescription.PatientName
+
+                                    </td>
+
+                                    <td>
+
+                                        Dr. @prescription.DoctorName
+
+                                    </td>
+
+                                    <td>
+
+                                        @prescription.PrescriptionDate.ToString("dd MMM yyyy")
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="badge bg-primary">
+
+                                            @prescription.TotalItems Medication(s)
+
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        @if(prescription.Status == "Active")
+                                        {
+                                            <span class="badge bg-success">
+
+                                                Active
+
+                                            </span>
+                                        }
+                                        else if(prescription.Status=="Completed")
+                                        {
+                                            <span class="badge bg-secondary">
+
+                                                Completed
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+
+                                                Cancelled
+
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <td>
+
+                                        <div class="btn-group">
+
+                                            <button class="btn btn-outline-primary btn-sm"
+
+                                                    @onclick="(()=>EditPrescription(prescription))">
+
+                                                <i class="bi bi-pencil-square"></i>
+
+                                            </button>
+
+                                            <button class="btn btn-outline-success btn-sm"
+
+                                                    @onclick="(()=>ViewPrescription(prescription.Id))">
+
+                                                <i class="bi bi-eye"></i>
+
+                                            </button>
+
+                                            <button class="btn btn-outline-warning btn-sm"
+
+                                                    @onclick="(()=>PrintPrescription(prescription.Id))">
+
+                                                <i class="bi bi-printer"></i>
+
+                                            </button>
+
+                                            <button class="btn btn-outline-danger btn-sm"
+
+                                                    @onclick="(()=>DeletePrescription(prescription.Id))">
+
+                                                <i class="bi bi-trash"></i>
+
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            }
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</Content>
+
+<AppModal
+
+    Visible="@showPrescriptionModal"
+
+    Title="@ModalTitle"
+
+    Icon="bi bi-journal-medical"
+
+    Size="CustomerModalSizeEnum.ExtraLarge"
+
+    SaveButtonText="@SaveButtonText"
+
+    IsSaving="@isSaving"
+
+    OnSave="SavePrescription"
+
+    OnCancel="ClosePrescriptionModal">
+
+    <div class="container-fluid">
+
+        <!-- ================================= -->
+        <!-- Prescription Information -->
+        <!-- ================================= -->
+
+        <div class="form-section">
+
+            <div class="form-section-title">
+
+                <i class="bi bi-file-earmark-medical"></i>
+
+                Prescription Information
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-lg-4">
+
+                    <label class="form-label">
+
+                        Prescription No.
+
+                    </label>
+
+                    <input class="form-control"
+                           readonly
+                           placeholder="Auto Generated" />
+
+                </div>
+
+                <div class="col-lg-4">
+
+                    <label class="form-label required">
+
+                        Prescription Date
+
+                    </label>
+
+                    <input type="date"
+                           class="form-control" />
+
+                </div>
+
+                <div class="col-lg-4">
+
+                    <label class="form-label required">
+
+                        Status
+
+                    </label>
+
+                    <select class="form-select">
+
+                        <option>Active</option>
+
+                        <option>Completed</option>
+
+                        <option>Cancelled</option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================================= -->
+        <!-- Patient & Doctor -->
+        <!-- ================================= -->
+
+        <div class="form-section mt-4">
+
+            <div class="form-section-title">
+
+                <i class="bi bi-people-fill"></i>
+
+                Patient & Doctor Information
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-lg-4">
+
+                    <label class="form-label required">
+
+                        Patient
+
+                    </label>
+
+                    <select class="form-select">
+
+                        <option>Select Patient</option>
+
+                        @foreach(var patient in Patients)
+                        {
+                            <option value="@patient.Id">
+
+                                @patient.FirstName @patient.LastName
+
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+                <div class="col-lg-4">
+
+                    <label class="form-label required">
+
+                        Doctor
+
+                    </label>
+
+                    <select class="form-select">
+
+                        <option>Select Doctor</option>
+
+                        @foreach(var doctor in Doctors)
+                        {
+                            <option value="@doctor.Id">
+
+                                Dr. @doctor.FullName
+
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+                <div class="col-lg-4">
+
+                    <label class="form-label">
+
+                        Medical Record
+
+                    </label>
+
+                    <select class="form-select">
+
+                        <option>Select Medical Record</option>
+
+                        @foreach(var record in MedicalRecords)
+                        {
+                            <option value="@record.Id">
+
+                                @record.RecordDate.ToString("dd MMM yyyy")
+
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================================= -->
+        <!-- Medications -->
+        <!-- ================================= -->
+
+        <div class="form-section mt-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <div class="form-section-title border-0 mb-0 pb-0">
+
+                    <i class="bi bi-capsule-pill"></i>
+
+                    Medications
+
+                </div>
+
+                <button type="button"
+                        class="btn btn-primary btn-sm">
+
+                    <i class="bi bi-plus-circle"></i>
+
+                    Add Medication
+
+                </button>
+
+            </div>
+
+            <div class="prescription-table table-responsive">
+
+                <table class="table table-bordered align-middle">
+
+                    <thead>
+
+                        <tr>
+
+                            <th style="width:22%">Medication</th>
+
+                            <th style="width:12%">Dosage</th>
+
+                            <th style="width:14%">Frequency</th>
+
+                            <th style="width:12%">Duration</th>
+
+                            <th style="width:10%">Quantity</th>
+
+                            <th>Instructions</th>
+
+                            <th style="width:70px"></th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+
+                            <td>
+
+                                <select class="form-select">
+
+                                    <option>Select Medication</option>
+
+                                    @foreach(var medicine in Medications)
+                                    {
+                                        <option value="@medicine.Id">
+
+                                            @medicine.MedicationName
+
+                                        </option>
+                                    }
+
+                                </select>
+
+                            </td>
+
+                            <td>
+
+                                <input class="form-control"
+                                       placeholder="500 mg" />
+
+                            </td>
+
+                            <td>
+
+                                <select class="form-select">
+
+                                    <option>1x Daily</option>
+                                    <option>2x Daily</option>
+                                    <option>3x Daily</option>
+                                    <option>Morning</option>
+                                    <option>Night</option>
+
+                                </select>
+
+                            </td>
+
+                            <td>
+
+                                <input class="form-control"
+                                       placeholder="5 Days" />
+
+                            </td>
+
+                            <td>
+
+                                <input type="number"
+                                       class="form-control" />
+
+                            </td>
+
+                            <td>
+
+                                <input class="form-control"
+                                       placeholder="After meals" />
+
+                            </td>
+
+                            <td class="text-center">
+
+                                <button type="button"
+                                        class="btn btn-danger btn-sm">
+
+                                    <i class="bi bi-trash"></i>
+
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <!-- ================================= -->
+        <!-- Notes -->
+        <!-- ================================= -->
+
+        <div class="form-section mt-4">
+
+            <div class="form-section-title">
+
+                <i class="bi bi-chat-left-text"></i>
+
+                Additional Instructions
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-12">
+
+                    <label class="form-label">
+
+                        General Notes
+
+                    </label>
+
+                    <textarea class="form-control"
+                              rows="4"
+                              placeholder="Additional instructions for the patient"></textarea>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</AppModal>
+
+@code {
+
+    #region Variables
+
+    private bool isLoading = true;
+    private bool isSaving = false;
+
+    private bool showPrescriptionModal = false;
+    private bool showViewModal = false;
+
+    private bool isEdit = false;
+
+    private string searchText = string.Empty;
+
+    private MdPrescription prescription = new();
+
+    private MdPrescription selectedPrescription = new();
+
+    private List<MdPrescription> Prescriptions = new();
+
+    private List<MdPatient> Patients = new();
+
+    private List<MdDoctor> Doctors = new();
+
+    private List<MdMedication> Medications = new();
+
+    private List<MdMedicalRecord> MedicalRecords = new();
+
+    // Medications added to this prescription
+    private List<MdPrescriptionItem> PrescriptionItems = new();
+
+    #endregion
+
+
+    #region Computed Properties
+
+    private string ModalTitle =>
+        isEdit ? "Update Prescription" : "New Prescription";
+
+    private string SaveButtonText =>
+        isEdit ? "Update Prescription" : "Save Prescription";
+
+    #endregion
+
+
+    #region Initialization
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPage();
+    }
+
+    #endregion
+
+
+    #region Load Page
+
+    private async Task LoadPage()
+    {
+        isLoading = true;
+
+        try
+        {
+            await LoadPrescriptions();
+
+            await LoadDoctors();
+
+            await LoadPatients();
+
+            await LoadMedications();
+
+            await LoadMedicalRecords();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    #endregion
+
+
+    #region Load Data
+
+    private async Task LoadPrescriptions()
+    {
+        // Load all prescriptions
+    }
+
+    private async Task LoadPatients()
+    {
+        // Load patients
+    }
+
+    private async Task LoadDoctors()
+    {
+        // Load doctors
+    }
+
+    private async Task LoadMedications()
+    {
+        // Load medications
+    }
+
+    private async Task LoadMedicalRecords()
+    {
+        // Load medical records
+    }
+
+    #endregion
+
+
+    #region Search
+
+    private async Task SearchPrescription(string keyword)
+    {
+        searchText = keyword;
+
+        // Search prescriptions
+    }
+
+    #endregion
+
+
+    #region Add Prescription
+
+    private void OpenAddPrescription()
+    {
+        isEdit = false;
+
+        prescription = new();
+
+        PrescriptionItems.Clear();
+
+        showPrescriptionModal = true;
+    }
+
+    #endregion
+
+
+    #region Edit Prescription
+
+    private async Task EditPrescription(MdPrescription item)
+    {
+        isEdit = true;
+
+        // Get prescription header
+
+        // Get prescription items
+
+        showPrescriptionModal = true;
+    }
+
+    #endregion
+
+
+    #region Save
+
+    private async Task SavePrescription()
+    {
+        isSaving = true;
+
+        try
+        {
+            if (isEdit)
+            {
+                // Update prescription
+
+                // Update prescription items
+            }
+            else
+            {
+                // Save prescription
+
+                // Save prescription items
+            }
+
+            await LoadPrescriptions();
+
+            ClosePrescriptionModal();
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    #endregion
+
+
+    #region Delete
+
+    private async Task DeletePrescription(string id)
+    {
+        // Confirm delete
+
+        // Delete prescription
+
+        // Delete prescription items
+
+        await LoadPrescriptions();
+    }
+
+    #endregion
+
+
+    #region View
+
+    private async Task ViewPrescription(string id)
+    {
+        // Load prescription
+
+        showViewModal = true;
+    }
+
+    private void CloseViewModal()
+    {
+        selectedPrescription = new();
+
+        showViewModal = false;
+    }
+
+    #endregion
+
+
+    #region Print
+
+    private async Task PrintPrescription(string id)
+    {
+        // Generate printable prescription
+
+        // Print PDF
+    }
+
+    #endregion
+
+
+    #region Prescription Items
+
+    private void AddMedicationRow()
+    {
+        PrescriptionItems.Add(new MdPrescriptionItem());
+    }
+
+    private void RemoveMedicationRow(MdPrescriptionItem item)
+    {
+        PrescriptionItems.Remove(item);
+    }
+
+    private decimal CalculateTotalQuantity()
+    {
+        return PrescriptionItems.Sum(x => x.Quantity);
+    }
+
+    private int TotalMedications()
+    {
+        return PrescriptionItems.Count;
+    }
+
+    #endregion
+
+
+    #region Modal
+
+    private void ClosePrescriptionModal()
+    {
+        prescription = new();
+
+        PrescriptionItems.Clear();
+
+        isEdit = false;
+
+        showPrescriptionModal = false;
+    }
+
+    #endregion
+
+
+    #region Helpers
+
+    private string GetStatusBadge(string status)
+    {
+        return status switch
+        {
+            "Active" => "success",
+            "Completed" => "secondary",
+            "Cancelled" => "danger",
+            _ => "primary"
+        };
+    }
+
+    private string FormatDate(DateTime date)
+    {
+        return date.ToString("dd MMM yyyy");
+    }
+
+    #endregion
+
+} *@

@@ -1,0 +1,1230 @@
+﻿@page "/medications"
+@using HospitalManagementSystem.Components.Shared
+@using HospitalManagementSystem.Components.Shared.Modal
+@using HospitalManagementSystem.Models
+@using HospitalManagementSystem.Models.MedicalRecord
+@layout HospitalManagementSystem.Components.Layout.MainLayout
+
+<style>
+    /* ==========================================================
+       Statistics Cards
+    ========================================================== */
+
+    .icon-circle {
+        width: 58px;
+        height: 58px;
+        border-radius: 14px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .icon-circle i {
+            font-size: 1.4rem;
+        }
+
+    .card {
+        border-radius: 14px;
+        transition: all .25s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 .75rem 1.5rem rgba(0,0,0,.08) !important;
+        }
+
+    /* ==========================================================
+       Table
+    ========================================================== */
+
+    .table {
+        margin-bottom: 0;
+    }
+
+        .table thead th {
+            background: #f8fafc;
+            color: #374151;
+            font-weight: 700;
+            font-size: .92rem;
+            white-space: nowrap;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .table tbody tr {
+            transition: .2s;
+        }
+
+            .table tbody tr:hover {
+                background: #f8fbff;
+            }
+
+    /* ==========================================================
+       Medication Name
+    ========================================================== */
+
+    .medication-name {
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .manufacturer {
+        font-size: .82rem;
+        color: #6b7280;
+    }
+
+    /* ==========================================================
+       Stock Status
+    ========================================================== */
+
+    .stock-low {
+        color: #dc3545;
+        font-weight: 700;
+    }
+
+    .stock-medium {
+        color: #ffc107;
+        font-weight: 700;
+    }
+
+    .stock-good {
+        color: #198754;
+        font-weight: 700;
+    }
+
+    /* ==========================================================
+       Expiry
+    ========================================================== */
+
+    .expired {
+        color: #dc3545;
+        font-weight: 700;
+    }
+
+    .expiring {
+        color: #fd7e14;
+        font-weight: 700;
+    }
+
+    /* ==========================================================
+       Price
+    ========================================================== */
+
+    .price {
+        font-weight: 700;
+        color: #198754;
+    }
+
+    /* ==========================================================
+       Badges
+    ========================================================== */
+
+    .badge {
+        padding: .55rem .8rem;
+        font-size: .75rem;
+        border-radius: 30px;
+    }
+
+    /* ==========================================================
+       Buttons
+    ========================================================== */
+
+    .btn-group {
+        display: flex;
+        gap: .45rem;
+    }
+
+        .btn-group .btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: .2s;
+        }
+
+            .btn-group .btn:hover {
+                transform: translateY(-2px);
+            }
+
+    /* ==========================================================
+       Empty State
+    ========================================================== */
+
+    .empty-state {
+        text-align: center;
+        padding: 70px 20px;
+    }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #cbd5e1;
+        }
+
+        .empty-state h5 {
+            margin-top: 1rem;
+            font-weight: 700;
+        }
+
+        .empty-state p {
+            color: #6b7280;
+        }
+
+    /* ==========================================================
+       Form Sections
+    ========================================================== */
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1f2937;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: .75rem;
+        margin-bottom: 1.25rem;
+    }
+
+        .form-section-title i {
+            color: #0d6efd;
+            font-size: 1.1rem;
+        }
+
+    /* ==========================================================
+       Labels
+    ========================================================== */
+
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: .45rem;
+    }
+
+    .required::after {
+        content: " *";
+        color: red;
+    }
+
+    /* ==========================================================
+       Inputs
+    ========================================================== */
+
+    .form-control,
+    .form-select {
+        min-height: 46px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        transition: .2s;
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 .15rem rgba(13,110,253,.15);
+        }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 110px;
+    }
+
+    /* ==========================================================
+       Readonly
+    ========================================================== */
+
+    .form-control:read-only {
+        background: #f8f9fa;
+    }
+
+    /* ==========================================================
+       View Card
+    ========================================================== */
+
+    .medication-summary {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+        .medication-summary h6 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: .85rem;
+    }
+
+        .summary-item label {
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .summary-item span {
+            color: #111827;
+            font-weight: 500;
+        }
+
+    /* ==========================================================
+       Responsive
+    ========================================================== */
+
+    @@media (max-width:992px) {
+
+        .table {
+            min-width: 1100px;
+        }
+
+        .btn-group {
+            flex-wrap: wrap;
+        }
+    }
+
+    @@media (max-width:768px) {
+
+        .icon-circle {
+            width: 50px;
+            height: 50px;
+        }
+
+            .icon-circle i {
+                font-size: 1.2rem;
+            }
+
+        .table tbody td {
+            padding: .85rem;
+        }
+
+        .btn-group .btn {
+            width: 34px;
+            height: 34px;
+        }
+
+        .form-section-title {
+            font-size: .95rem;
+        }
+    }
+
+    @@media (max-width:576px) {
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 44px;
+        }
+    }
+</style>
+
+<PageShell PageTitle="Medications">
+
+    <!-- ===================================== -->
+    <!-- Statistics -->
+    <!-- ===================================== -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                Total Medications
+                            </small>
+
+                            <h3 class="fw-bold mt-2">
+
+                                @(filtered is not null ? filtered.Count() : 0)
+
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-primary">
+
+                            <i class="bi bi-capsule-pill text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+
+                                Low Stock
+
+                            </small>
+
+                            <h3 class="fw-bold text-warning mt-2">
+
+                                @(filtered is not null ? filtered.Count(x => x.Quantity <= x.MinimumStock) : 0)
+
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-warning">
+
+                            <i class="bi bi-exclamation-triangle text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+
+                                Expiring Soon
+
+                            </small>
+
+                            <h3 class="fw-bold text-danger mt-2">
+
+                                @(filtered is not null ? filtered.Count(x => x.ExpiryDate <= DateTime.Today.AddMonths(3)) : 0)
+
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-danger">
+
+                            <i class="bi bi-clock-history text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+
+                                Categories
+
+                            </small>
+
+                            <h3 class="fw-bold text-success mt-2">
+
+                                @(filtered is not null ? filtered.Select(x => x.Category).Distinct().Count() : 0)
+
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-success">
+
+                            <i class="bi bi-grid text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- Toolbar -->
+    <!-- ===================================== -->
+
+    <PageToolbar
+
+        SearchPlaceholder="Search medication..."
+
+        AddButtonText="Add Medication"
+
+        OnSearch="SearchMedication"
+
+        OnAdd="OpenAddMedication"
+
+        OnRefresh="LoadMedications"/>
+
+    <!-- ===================================== -->
+    <!-- Medication Table -->
+    <!-- ===================================== -->
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+
+                        <tr>
+
+                            <th>Medication</th>
+
+                            <th>Category</th>
+
+                            <th>Unit</th>
+
+                            <th>Quantity</th>
+
+                            <th>Unit Price</th>
+
+                            <th>Expiry Date</th>
+
+                            <th>Status</th>
+
+                            <th width="260">
+
+                                Actions
+
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @if(Medications.Count == 0)
+                        {
+                            <tr>
+
+                                <td colspan="8">
+
+                                    <div class="empty-state">
+
+                                        <i class="bi bi-capsule-pill"></i>
+
+                                        <h5>
+
+                                            No Medications Available
+
+                                        </h5>
+
+                                        <p>
+
+                                            Click "Add Medication" to create one.
+
+                                        </p>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach(var medication in filtered)
+                            {
+
+                                <tr>
+
+                                    <td>
+
+                                        <div class="fw-bold">
+
+                                            @medication.MedicationName
+
+                                        </div>
+
+                                        <small class="text-muted">
+
+                                            @medication.Manufacturer
+
+                                        </small>
+
+                                    </td>
+
+                                    <td>
+
+                                        @medication.Category
+
+                                    </td>
+
+                                    <td>
+
+                                        @medication.Unit
+
+                                    </td>
+
+                                    <td>
+
+                                        @medication.Quantity
+
+                                    </td>
+
+                                    <td>
+
+                                        GH₵ @medication.SellingPrice.ToString("N2")
+
+                                    </td>
+
+                                    <td>
+
+                                        @medication.ExpiryDate.ToString("dd MMM yyyy")
+
+                                    </td>
+
+                                    <td>
+
+                                        @if(medication.Quantity <= medication.MinimumStock)
+                                        {
+                                            <span class="badge bg-warning">
+
+                                                Low Stock
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">
+
+                                                Available
+
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <td>
+
+                                        <div class="btn-group">
+
+                                            <button class="btn btn-outline-primary btn-sm"
+
+                                                    title="Edit"
+
+                                                    @onclick="(()=>EditMedication(medication))">
+
+                                                <i class="bi bi-pencil-square"></i>
+
+                                            </button>
+
+                                            <button class="btn btn-outline-success btn-sm"
+
+                                                    title="View"
+
+                                                    @onclick="(()=>ViewMedication(medication.Id))">
+
+                                                <i class="bi bi-eye"></i>
+
+                                            </button>
+
+                                            <button class="btn btn-outline-warning btn-sm"
+
+                                                    title="Restock"
+
+                                                    @onclick="(()=>RestockMedication(medication.Id))">
+
+                                                <i class="bi bi-box-seam"></i>
+
+                                            </button>
+
+                                            <button class="btn btn-outline-danger btn-sm"
+
+                                                    title="Delete"
+
+                                                    @onclick="(()=>DeleteMedication(medication.Id))">
+
+                                                <i class="bi bi-trash"></i>
+
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            }
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</PageShell>
+
+
+@* Add / Update Medication Modal *@
+<AppModal
+    Visible="@showMedicationModal"
+    Title="@ModalTitle"
+    Icon="bi bi-capsule-pill"
+    Size="CustomerModalSizeEnum.ExtraLarge"
+    SaveButtonText="@SaveButtonText"
+    IsSaving="@isSaving"
+    OnSave="SaveMedication"
+    OnCancel="CloseMedicationModal">
+
+    <div class="container-fluid">
+
+        @* =========================================
+           General Information
+        ========================================= *@
+        <div class="form-section">
+            <div class="form-section-title">
+                <i class="bi bi-info-circle"></i>
+                General Information
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label required">Medication Name</label>
+                    <input type="text" class="form-control" @bind-value="medication.MedicationName" placeholder="Enter medication name"  />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Generic Name</label>
+                    <input type="text" class="form-control" @bind-value="medication.GenericName" placeholder="Enter generic name" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Brand Name</label>
+                    <input type="text" class="form-control" @bind-value="medication.BrandName" placeholder="Enter brand name" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label required" >Category</label>
+                    <select class="form-select" @bind="medication.Category">
+                        <option value="">Select category</option>
+                        <option value="Antibiotic">Antibiotic</option>
+                        <option value="Analgesic">Analgesic</option>
+                        <option value="Antimalarial">Antimalarial</option>
+                        <option value="Antihypertensive">Antihypertensive</option>
+                        <option value="Vitamin">Vitamin</option>
+                        <option value="Injection">Injection</option>
+                        <option value="Syrup">Syrup</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Manufacturer</label>
+                    <input type="text" class="form-control" @bind-value="medication.Manufacturer" placeholder="Enter manufacturer" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Dosage Strength</label>
+                    <input type="text" class="form-control" @bind-value="medication.DosageStrength" placeholder="e.g. 500mg" />
+                </div>
+            </div>
+        </div>
+
+        @* =========================================
+           Inventory Information
+        ========================================= *@
+        <div class="form-section mt-4">
+            <div class="form-section-title">
+                <i class="bi bi-box-seam"></i>
+                Inventory Information
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label required">Unit</label>
+                    <select class="form-select" @bind="medication.Unit">
+                        <option value="">Select</option>
+                        <option value="Tablet">Tablet</option>
+                        <option value="Capsule">Capsule</option>
+                        <option value="Bottle">Bottle</option>
+                        <option value="Injection">Injection</option>
+                        <option value="Syrup">Syrup</option>
+                        <option value="Ampoule">Ampoule</option>
+                        <option value="Tube">Tube</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label required">Quantity</label>
+                    <input type="number" class="form-control" @bind-value="medication.Quantity" placeholder="0" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label required">Minimum Stock</label>
+                    <input type="number" class="form-control" @bind-value="medication.MinimumStock" placeholder="0" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Batch Number</label>
+                    <input type="text" class="form-control" @bind-value="medication.BatchNumber" placeholder="Batch no." />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label required">Expiry Date</label>
+                    <input type="date" class="form-control" @bind-value="medication.ExpiryDate" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Storage Location</label>
+                    <input type="text" class="form-control" @bind-value="medication.StorageLocation" placeholder="Pharmacy shelf / cabinet" />
+                </div>
+            </div>
+        </div>
+
+        @* =========================================
+           Pricing Information
+        ========================================= *@
+        <div class="form-section mt-4">
+            <div class="form-section-title">
+                <i class="bi bi-currency-dollar"></i>
+                Pricing Information
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Cost Price (GH₵)</label>
+                    <input type="number" step="0.01" class="form-control" @bind-value="medication.CostPrice" placeholder="0.00" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label required">Selling Price (GH₵)</label>
+                    <input type="number" step="0.01" class="form-control" @bind-value="medication.SellingPrice" placeholder="0.00" />
+                </div>
+            </div>
+        </div>
+
+        @* =========================================
+           Additional Information
+        ========================================= *@
+        <div class="form-section mt-4">
+            <div class="form-section-title">
+                <i class="bi bi-file-text"></i>
+                Additional Information
+            </div>
+
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" rows="3" @bind="medication.Description" placeholder="Medication description"></textarea>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Storage Instructions</label>
+                    <textarea class="form-control" rows="3" @bind="medication.StorageInstructions" placeholder="Store in a cool dry place"></textarea>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Side Effects / Warnings</label>
+                    <textarea class="form-control" rows="3" @bind="medication.SideEffects" placeholder="Any warnings or side effects"></textarea>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</AppModal>
+
+@code {
+
+    #region Variables
+
+    private bool isLoading = true;
+    private bool isSaving = false;
+
+    private bool showMedicationModal = false;
+    private bool showViewModal = false;
+
+    private bool isEdit = false;
+
+    private string searchText = string.Empty;
+
+    private MdPostMedication medication = new();
+
+    private string selectedMedicationId = string.Empty;
+
+    private List<MdGetMedication> Medications = new();
+    private IEnumerable<MdGetMedication> filtered => Medications.Where(d => d.MedicationName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                           d.Category.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                          d.BrandName.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+    #endregion
+
+
+    #region Computed Properties
+
+    private string ModalTitle =>
+        isEdit ? "Update Medication" : "Add Medication";
+
+    private string SaveButtonText =>
+        isEdit ? "Update Medication" : "Save Medication";
+
+    #endregion
+
+
+    #region Initialization
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPage();
+    }
+
+    #endregion
+
+
+    #region Load Data
+
+    private async Task LoadPage()
+    {
+        isLoading = true;
+
+        try
+        {
+            await LoadMedications();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadMedications()
+    {
+        // Get all medications
+    }
+
+    #endregion
+
+
+    #region Search
+
+    private async Task SearchMedication(string keyword)
+    {
+        searchText = keyword;
+
+        // Search medication
+    }
+
+    #endregion
+
+
+    #region Add Medication
+
+    private void OpenAddMedication()
+    {
+        isEdit = false;
+
+        medication = new();
+
+        showMedicationModal = true;
+    }
+
+    #endregion
+
+
+    #region Edit Medication
+
+    private async Task EditMedication(MdGetMedication item)
+    {
+        isEdit = true;
+
+        // medication = await MedicationService.Get(item.Id);
+        selectedMedicationId = item.Id!;
+        medication = new MdPostMedication
+        {
+            MedicationName = item.MedicationName, //
+            GenericName = item.GenericName,
+            BrandName = item.BrandName,
+            Category = item.Category, //
+            Manufacturer = item.Manufacturer,
+            DosageStrength = item.DosageStrength,
+            Unit = item.Unit,//
+            Quantity = item.Quantity, //
+            MinimumStock = item.MinimumStock, //
+            BatchNumber = item.BatchNumber,
+            ExpiryDate = item.ExpiryDate,//
+            StorageLocation = item.StorageLocation,
+            CostPrice = item.CostPrice,
+            SellingPrice = item.SellingPrice,//
+            Description = item.Description,
+            StorageInstructions = item.StorageInstructions,
+            SideEffects = item.SideEffects,
+
+        };
+
+        showMedicationModal = true;
+    }
+
+    #endregion
+
+
+    #region Save Medication
+
+    private async Task SaveMedication()
+    {
+        if (string.IsNullOrEmpty(medication.MedicationName))
+        {
+            _message.Error("Medication name is required");
+            return;
+        }
+        if (string.IsNullOrEmpty(medication.Category))
+        {
+            _message.Error("Category is required");
+            return;
+        }
+
+        if (medication.MinimumStock < 0)
+        {
+            _message.Error("Minimun Stock must be greater than 0");
+            return;
+        }
+
+        if (medication.Unit <= 0)
+        {
+            _message.Error("Unit must be greater than 0");
+            return;
+        }
+
+        if (medication.Quantity <= 0)
+        {
+            _message.Error("Quantity must be greater than 0");
+            return;
+        }
+
+        if (medication.Quantity <= 0)
+        {
+            _message.Error("Selling Price must be greater than 0");
+            return;
+        }
+
+        if (medication.ExpiryDate == default)
+        {
+            _message.Error("Invalid date");
+            return;
+        }
+
+        if (medication.ExpiryDate < DateTime.Today)
+        {
+            _message.Error("Medication has expired already");
+            return;
+        }
+
+
+        isSaving = true;
+        bool response = false;
+        try
+        {
+            if (isEdit)
+            {
+                if (string.IsNullOrEmpty(selectedMedicationId))
+                {
+                    _message.Error("No item to be updated");
+                    return;
+                }
+                // Update Medication
+            }
+            else
+            {
+                // Create Medication
+            }
+
+            await LoadMedications();
+
+            CloseMedicationModal();
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    #endregion
+
+
+    #region Delete Medication
+
+    private async Task DeleteMedication(string id)
+    {
+        // Confirmation Dialog
+
+        if (string.IsNullOrEmpty(id))
+        {
+            _message.Error("No medication to delete");
+            return;
+        }
+
+        // Delete Medication
+
+        await LoadMedications();
+    }
+
+    #endregion
+
+
+    #region View Medication
+
+    private async Task ViewMedication(string id)
+    {
+        // selectedMedication =
+        // await MedicationService.Get(id);
+
+        showViewModal = true;
+    }
+
+    private void CloseViewModal()
+    {
+        medication = new();
+
+        showViewModal = false;
+    }
+
+    #endregion
+
+
+    #region Restock Medication
+
+    private async Task RestockMedication(string id)
+    {
+        // Open Restock Dialog
+
+        // Increase Quantity
+
+        await LoadMedications();
+    }
+
+    #endregion
+
+
+    #region Stock Helpers
+
+    private bool IsLowStock(MdGetMedication item)
+    {
+        return item.Quantity <= item.MinimumStock;
+    }
+
+    private bool IsExpired(MdGetMedication item)
+    {
+        return item.ExpiryDate.Date < DateTime.Today;
+    }
+
+    private bool IsExpiringSoon(MdGetMedication item)
+    {
+        return item.ExpiryDate <= DateTime.Today.AddMonths(3);
+    }
+
+    #endregion
+
+
+    #region Close Modal
+
+    private void CloseMedicationModal()
+    {
+        medication = new();
+
+        isEdit = false;
+
+        showMedicationModal = false;
+    }
+
+    #endregion
+
+
+    #region Helpers
+
+    private string GetStockBadge(MdGetMedication item)
+    {
+        if (IsExpired(item))
+            return "danger";
+
+        if (IsLowStock(item))
+            return "warning";
+
+        return "success";
+    }
+
+    private string GetStockText(MdGetMedication item)
+    {
+        if (IsExpired(item))
+            return "Expired";
+
+        if (IsLowStock(item))
+            return "Low Stock";
+
+        return "Available";
+    }
+
+    private string FormatCurrency(decimal amount)
+    {
+        return $"GH₵ {amount:N2}";
+    }
+
+    private string FormatDate(DateTime? date)
+    {
+        if (date == null)
+            return "";
+
+        return date.Value.ToString("dd MMM yyyy");
+    }
+
+    #endregion
+
+}
