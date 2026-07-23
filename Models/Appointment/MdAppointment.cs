@@ -4,7 +4,7 @@
     {
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
-        public DateOnly? DateOfBirth { get; set; }
+        public DateOnly DateOfBirth { get; set; }
         public string Gender { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
@@ -19,7 +19,7 @@
         public string? Reason { get; set; }
         public string? Note { get; set; }
         public DateOnly AppointmentDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
-        public TimeOnly? AppointmentTime { get; set; } = TimeOnly.FromDateTime(DateTime.Now);
+        public TimeOnly AppointmentTime { get; set; } = TimeOnly.FromDateTime(DateTime.Now);
     }
 
     public class MdGetAppointment : MdPostAppointment
@@ -29,8 +29,6 @@
         public string? PatientNumber {get; set;}
         public string? DoctorName {get; set;}
         public string? DepartmentName {get; set;}
-        public DateOnly AppointmentDate {get; set;} = DateOnly.FromDateTime(DateTime.Now);
-        public TimeOnly AppointmentTime {get; set;} = TimeOnly.FromDateTime(DateTime.Now);  
 
     }
 }

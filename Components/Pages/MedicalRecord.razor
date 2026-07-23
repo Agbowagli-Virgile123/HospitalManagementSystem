@@ -546,7 +546,7 @@
                         }
                         else
                         {
-                            @foreach(var record in filtered)
+                            @foreach(var record in filtered!)
                             {
 
                                 <tr>
@@ -605,7 +605,7 @@
 
                                             <button class="btn btn-outline-success btn-sm"
 
-                                                    @onclick="(()=>ViewMedicalRecord(record.Id))">
+                                                    @onclick="(()=>ViewMedicalRecord(record.Id!))">
 
                                                 <i class="bi bi-eye"></i>
 
@@ -613,7 +613,7 @@
 
                                             <button class="btn btn-outline-warning btn-sm"
 
-                                                    @onclick="(()=>PrintMedicalRecord(record.Id))">
+                                                    @onclick="(()=>PrintMedicalRecord(record.Id!))">
 
                                                 <i class="bi bi-printer"></i>
 
@@ -621,7 +621,7 @@
 
                                             <button class="btn btn-outline-danger btn-sm"
 
-                                                    @onclick="(()=>DeleteMedicalRecord(record.Id))">
+                                                    @onclick="(()=>DeleteMedicalRecord(record.Id!))">
 
                                                 <i class="bi bi-trash"></i>
 
@@ -1088,12 +1088,12 @@
 
     private MdPostMedicalRecord medicalRecord = new();
 
-    private string selectedMedicalRecordId, patientNumber = string.Empty;
+    private string? selectedMedicalRecordId, patientNumber = string.Empty;
 
     private List<MdGetMedicaRecord> MedicalRecords = new();
-    private IEnumerable<MdGetMedicaRecord> filtered => MedicalRecords.Where(d => d.PatientName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                            d.AppointmentName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                           d.DoctorName.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+    private IEnumerable<MdGetMedicaRecord> filtered => MedicalRecords.Where(d => d.PatientName!.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                            d.AppointmentName!.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                           d.DoctorName!.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
 
     private List<MdGetPatient> Patients = new();
 

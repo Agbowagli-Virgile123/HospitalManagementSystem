@@ -14,7 +14,7 @@ namespace HospitalManagementSystem.Models.Department
     public class DepartmentGet : DepartmentPost
     {
         public string Id { get; set; } = string.Empty;
-        public DoctorGet HeadDoctor { get; set; }
+        public DoctorGet HeadDoctor { get; set; } = new DoctorGet();
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
     }

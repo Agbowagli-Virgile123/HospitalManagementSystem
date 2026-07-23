@@ -510,7 +510,7 @@
 
                         else
                         {
-                            @foreach(var patient in filtered)
+                            @foreach(var patient in filtered!)
                             {
                                 <tr>
 
@@ -518,7 +518,7 @@
 
                                         <div class="avatar">
 
-                                            @GetInitials(patient.FirstName,patient.LastName)
+                                            @GetInitials(patient.FirstName!,patient.LastName!)
 
                                         </div>
 
@@ -998,11 +998,11 @@
     string selectedPatientId = string.Empty;
 
     private List<MdGetPatient> Patients = new();
-    private IEnumerable<MdGetPatient> filtered => Patients.Where(d => d.LastName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                            d.FirstName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                            d.Gender.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                            d.Status.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                            d.PhoneNumber.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+    private IEnumerable<MdGetPatient> filtered => Patients.Where(d => d.LastName!.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                            d.FirstName!.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                            d.Gender!.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                            d.Status!.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                            d.PhoneNumber!.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
     #endregion
 
 

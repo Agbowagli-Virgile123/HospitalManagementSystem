@@ -131,7 +131,7 @@
                     {
                         @if (doctors.Any())
                         {
-                           @foreach(var doc in filtered)
+                           @foreach(var doc in filtered!)
                            {
                                 <tr>
 
@@ -365,12 +365,12 @@
 
 @code{
     List<DoctorGet> doctors = new();
-    IEnumerable<DoctorGet> filtered => doctors.Where(d => $"{d.FirstName} {d.LastName}".Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                              d.Email.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                              d.PhoneNumber.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                              d.Specialization.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+    IEnumerable<DoctorGet> filtered => doctors.Where(d => $"{d.FirstName} {d.LastName}".Contains(searchText!, StringComparison.OrdinalIgnoreCase) ||
+                              d.Email.Contains(searchText!, StringComparison.OrdinalIgnoreCase) ||
+                              d.PhoneNumber.Contains(searchText!, StringComparison.OrdinalIgnoreCase) ||
+                              d.Specialization.Contains(searchText!, StringComparison.OrdinalIgnoreCase)).ToList();
     DoctorPost doctor = new();
-    string selectedDoctorId, searchText = string.Empty;
+    string? selectedDoctorId, searchText = string.Empty;
 
     List<DepartmentGet> departements = new();
 

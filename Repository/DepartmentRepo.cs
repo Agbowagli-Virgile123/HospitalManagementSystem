@@ -147,7 +147,7 @@ namespace HospitalManagementSystem.Repository
                     ? default
                     : Convert.ToDateTime(reader["UpdatedDate"]),
                 HeadDoctor = reader["DoctorId"] == DBNull.Value
-                    ? null
+                    ? null!
                     : new DoctorGet
                     {
                         Id = reader["DoctorId"].ToString()!,
@@ -205,7 +205,7 @@ namespace HospitalManagementSystem.Repository
                         ? default
                         : Convert.ToDateTime(reader["UpdatedDate"]),
                     HeadDoctor = reader["DoctorId"] == DBNull.Value
-                        ? null
+                        ? null!
                         : new DoctorGet
                         {
                             Id = reader["DoctorId"].ToString()!,

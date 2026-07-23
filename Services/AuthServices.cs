@@ -105,13 +105,13 @@ namespace HospitalManagementSystem.Services
 
         public void Reset()
         {
-            user = null;
+            user = null!;
             IsLoaded = false;
         }
 
         public async Task LogoutAsync()
         {
-            user = null;
+            user = null!;
             IsLoaded = false;
             await _storage.DeleteAsync(AppGlobal.userInfoKey);
         }

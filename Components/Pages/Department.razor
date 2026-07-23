@@ -501,7 +501,7 @@
 
                         else
                         {
-                            @foreach (var dept in filterd)
+                            @foreach (var dept in filterd!)
                             {
                                 <tr>
 
@@ -535,7 +535,7 @@
 
                                     <td>
 
-                                        @if(dept is null && string.IsNullOrWhiteSpace(dept.HeadDoctor.Id))
+                                        @if(dept is null && string.IsNullOrWhiteSpace(dept!.HeadDoctor.Id))
                                         {
                                             <span class="text-danger">
 

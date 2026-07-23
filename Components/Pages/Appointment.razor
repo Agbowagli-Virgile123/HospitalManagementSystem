@@ -543,7 +543,7 @@
                         }
                         else
                         {
-                            @foreach(var appointment in filtered)
+                            @foreach(var appointment in filtered!)
                             {
                                 <tr>
 
@@ -652,7 +652,7 @@
 
                                                     title="Confirm Appointment"
 
-                                                    @onclick="(()=>ConfirmAppointment(appointment.Id))">
+                                                    @onclick="(()=>ConfirmAppointment(appointment.Id!))">
 
                                                 <i class="bi bi-check-circle"></i>
 
@@ -662,7 +662,7 @@
 
                                                     title="View Details"
 
-                                                    @onclick="(()=>ViewAppointment(appointment.Id))">
+                                                    @onclick="(()=>ViewAppointment(appointment.Id!))">
 
                                                 <i class="bi bi-eye"></i>
 
@@ -672,7 +672,7 @@
 
                                                     title="Cancel Appointment"
 
-                                                    @onclick="(()=>CancelAppointment(appointment.Id))">
+                                                    @onclick="(()=>CancelAppointment(appointment.Id!))">
 
                                                 <i class="bi bi-x-circle"></i>
 
@@ -682,7 +682,7 @@
 
                                                     title="Delete Appointment"
 
-                                                    @onclick="(()=>DeleteAppointment(appointment.Id))">
+                                                    @onclick="(()=>DeleteAppointment(appointment.Id!))">
 
                                                 <i class="bi bi-trash"></i>
 
@@ -993,12 +993,12 @@
 
     private MdPostAppointment appointment = new();
 
-    private string selectedAppointmentId, patientNumber, doctorNumber = string.Empty;
+    private string? selectedAppointmentId, patientNumber, doctorNumber = string.Empty;
     private MdGetAppointment selectedAppointment = new();
 
     private List<MdGetAppointment> Appointments = new();
-    private IEnumerable<MdGetAppointment> filtered => Appointments.Where(d => d.DepartmentName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                           d.PatientName.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+    private IEnumerable<MdGetAppointment> filtered => Appointments.Where(d => d.DepartmentName!.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                           d.PatientName!.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
 
     private List<MdGetPatient> Patients = new();
 
@@ -1299,7 +1299,7 @@
 
     private async Task PatientChanged(ChangeEventArgs e)
     {
-        appointment.PatientId = e.Value?.ToString();
+        appointment.PatientId = e.Value!.ToString()!;
 
         var patient = Patients.FirstOrDefault(x => x.Id == appointment.PatientId);
 

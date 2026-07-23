@@ -1,8 +1,14 @@
-﻿@* @page "/prescriptions"
-
+﻿@page "/prescriptions"
+@layout HospitalManagementSystem.Components.Layout.MainLayout
+@using HospitalManagementSystem.Components.Shared
+@using HospitalManagementSystem.Components.Shared.Modal
+@using HospitalManagementSystem.Models
+@using HospitalManagementSystem.Models.Doctor
+@using HospitalManagementSystem.Models.MedicalRecord
+@using HospitalManagementSystem.Models.Patients
 @using HospitalManagementSystem.Models.Prescription
-
-<PageTitle>Prescriptions</PageTitle>
+@inject HospitalManagementSystem.Interfaces.IDoctor doctorService
+@inject HospitalManagementSystem.Services.IPatient patientServices
 
 <style>
     /* ==========================================================
@@ -272,7 +278,7 @@
        Responsive
     ========================================================== */
 
-    @media (max-width:992px) {
+    @@media (max-width:992px) {
 
         .table {
             min-width: 1100px;
@@ -287,7 +293,7 @@
         }
     }
 
-    @media (max-width:768px) {
+    @@media (max-width:768px) {
 
         .icon-circle {
             width: 50px;
@@ -312,7 +318,7 @@
         }
     }
 
-    @media (max-width:576px) {
+    @@media (max-width:576px) {
 
         .card-body {
             padding: 1rem;
@@ -325,7 +331,7 @@
     }
 </style>
 
-<Content PageTitle="Prescriptions">
+<PageShell PageTitle="Prescriptions">
 
     <!-- ===================================== -->
     <!-- Statistics -->
@@ -351,7 +357,7 @@
 
                             <h3 class="fw-bold mt-2">
 
-                                @Prescriptions.Count
+                                @(filtered is not null ? filtered.Count() : 0)
 
                             </h3>
 
@@ -389,7 +395,7 @@
 
                             <h3 class="fw-bold text-success mt-2">
 
-                                @Prescriptions.Count(x=>x.PrescriptionDate.Date==DateTime.Today)
+                                @(filtered is not null ? filtered.Count(x=>x.PrescriptionDate.Date==DateTime.Today) : 0)
 
                             </h3>
 
@@ -427,7 +433,7 @@
 
                             <h3 class="fw-bold text-info mt-2">
 
-                                @Prescriptions.Count(x=>x.Status=="Active")
+                                @(filtered is not null ? filtered.Count(x=>x.Status=="Active") : 0)
 
                             </h3>
 
@@ -465,7 +471,7 @@
 
                             <h3 class="fw-bold text-warning mt-2">
 
-                                @Prescriptions.Count(x=>x.Status=="Completed")
+                                @(filtered is not null ? filtered.Count(x=>x.Status=="Completed") : 0)
 
                             </h3>
 
@@ -573,7 +579,7 @@
                         }
                         else
                         {
-                            @foreach(var prescription in Prescriptions)
+                            @foreach(var prescription in filtered!)
                             {
 
                                 <tr>
@@ -659,7 +665,7 @@
 
                                             <button class="btn btn-outline-success btn-sm"
 
-                                                    @onclick="(()=>ViewPrescription(prescription.Id))">
+                                                    @onclick="(()=>ViewPrescription(prescription.Id!))">
 
                                                 <i class="bi bi-eye"></i>
 
@@ -667,7 +673,7 @@
 
                                             <button class="btn btn-outline-warning btn-sm"
 
-                                                    @onclick="(()=>PrintPrescription(prescription.Id))">
+                                                    @onclick="(()=>PrintPrescription(prescription.Id!))">
 
                                                 <i class="bi bi-printer"></i>
 
@@ -675,7 +681,7 @@
 
                                             <button class="btn btn-outline-danger btn-sm"
 
-                                                    @onclick="(()=>DeletePrescription(prescription.Id))">
+                                                    @onclick="(()=>DeletePrescription(prescription.Id!))">
 
                                                 <i class="bi bi-trash"></i>
 
@@ -700,7 +706,7 @@
 
     </div>
 
-</Content>
+</PageShell>
 
 <AppModal
 
@@ -846,7 +852,7 @@
                         {
                             <option value="@doctor.Id">
 
-                                Dr. @doctor.FullName
+                                Dr. @doctor.LastName @doctor.FirstName
 
                             </option>
                         }
@@ -1075,22 +1081,25 @@
 
     private string searchText = string.Empty;
 
-    private MdPrescription prescription = new();
+    private MdPostPrescription prescription = new();
 
-    private MdPrescription selectedPrescription = new();
+    private string? selectedPrescriptionId;
 
-    private List<MdPrescription> Prescriptions = new();
+    private List<MdGetPrescription> Prescriptions = new();
+    private IEnumerable<MdGetPrescription> filtered => Prescriptions.Where(d => d.MedicationName!.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                          d.PatientName!.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                         d.PrescriptionNumber!.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
 
-    private List<MdPatient> Patients = new();
+    private List<MdGetPatient> Patients = new();
 
-    private List<MdDoctor> Doctors = new();
+    private List<DoctorGet> Doctors = new();
 
-    private List<MdMedication> Medications = new();
+    private List<MdGetMedication> Medications = new();
 
-    private List<MdMedicalRecord> MedicalRecords = new();
+    private List<MdGetMedicaRecord> MedicalRecords = new();
 
     // Medications added to this prescription
-    private List<MdPrescriptionItem> PrescriptionItems = new();
+    private List<MdGetPrescriptionItem> PrescriptionItems = new();
 
     #endregion
 
@@ -1153,11 +1162,13 @@
     private async Task LoadPatients()
     {
         // Load patients
+        Patients = await patientServices.GetPatientsAsync();
     }
 
     private async Task LoadDoctors()
     {
         // Load doctors
+        Doctors = await doctorService.GetDoctorsAsync();
     }
 
     private async Task LoadMedications()
@@ -1203,7 +1214,7 @@
 
     #region Edit Prescription
 
-    private async Task EditPrescription(MdPrescription item)
+    private async Task EditPrescription(MdGetPrescription item)
     {
         isEdit = true;
 
@@ -1278,7 +1289,7 @@
 
     private void CloseViewModal()
     {
-        selectedPrescription = new();
+        selectedPrescriptionId = string.Empty;
 
         showViewModal = false;
     }
@@ -1302,15 +1313,15 @@
 
     private void AddMedicationRow()
     {
-        PrescriptionItems.Add(new MdPrescriptionItem());
+        PrescriptionItems.Add(new MdGetPrescriptionItem());
     }
 
-    private void RemoveMedicationRow(MdPrescriptionItem item)
+    private void RemoveMedicationRow(MdGetPrescriptionItem item)
     {
         PrescriptionItems.Remove(item);
     }
 
-    private decimal CalculateTotalQuantity()
+    private double CalculateTotalQuantity()
     {
         return PrescriptionItems.Sum(x => x.Quantity);
     }
@@ -1359,4 +1370,4 @@
 
     #endregion
 
-} *@
+} 

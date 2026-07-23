@@ -579,7 +579,7 @@
                         }
                         else
                         {
-                            @foreach(var medication in filtered)
+                            @foreach(var medication in filtered!)
                             {
 
                                 <tr>
@@ -669,7 +669,7 @@
 
                                                     title="View"
 
-                                                    @onclick="(()=>ViewMedication(medication.Id))">
+                                                    @onclick="(()=>ViewMedication(medication.Id!))">
 
                                                 <i class="bi bi-eye"></i>
 
@@ -679,7 +679,7 @@
 
                                                     title="Restock"
 
-                                                    @onclick="(()=>RestockMedication(medication.Id))">
+                                                    @onclick="(()=>RestockMedication(medication.Id!))">
 
                                                 <i class="bi bi-box-seam"></i>
 
@@ -689,7 +689,7 @@
 
                                                     title="Delete"
 
-                                                    @onclick="(()=>DeleteMedication(medication.Id))">
+                                                    @onclick="(()=>DeleteMedication(medication.Id!))">
 
                                                 <i class="bi bi-trash"></i>
 
@@ -904,9 +904,9 @@
     private string selectedMedicationId = string.Empty;
 
     private List<MdGetMedication> Medications = new();
-    private IEnumerable<MdGetMedication> filtered => Medications.Where(d => d.MedicationName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                           d.Category.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                          d.BrandName.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+    private IEnumerable<MdGetMedication> filtered => Medications.Where(d => d.MedicationName!.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                           d.Category!.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                          d.BrandName!.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
     #endregion
 
 
@@ -1085,6 +1085,11 @@
             else
             {
                 // Create Medication
+            }
+
+            if (!response)
+            {
+                
             }
 
             await LoadMedications();
