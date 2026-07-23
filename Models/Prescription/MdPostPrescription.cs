@@ -1,4 +1,6 @@
 ﻿
+using System.Net.NetworkInformation;
+
 namespace HospitalManagementSystem.Models.Prescription
 {
     public class MdPostPrescription
@@ -14,7 +16,18 @@ namespace HospitalManagementSystem.Models.Prescription
         public double NumberOfDays {get;set;}
         public string? Note {get;set;}
         public double TotalItems { get;set;}
-      
+
+
+        //Id
+        //PrescriptionNumber
+        //PatientId
+        //DoctorId
+        //MedicalRecordId
+        //PrescriptionDate
+        //Status
+        //Remarks
+
+
 
     }
 
@@ -31,5 +44,14 @@ namespace HospitalManagementSystem.Models.Prescription
     public class MdGetPrescriptionItem
     { 
         public double Quantity { get; set; }
+
+        //Id
+        //PrescriptionId
+        //MedicationId
+        //Dosage
+        //Frequency
+        //Duration
+        //Quantity
+        //Instruction
     }
 }

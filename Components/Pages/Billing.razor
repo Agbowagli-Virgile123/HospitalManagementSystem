@@ -1,0 +1,2377 @@
+﻿@* @page "/billing"
+
+<style>
+    /* ==========================================================
+       Statistics Cards
+    ========================================================== */
+
+    .icon-circle {
+        width: 58px;
+        height: 58px;
+        border-radius: 14px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .icon-circle i {
+            font-size: 1.4rem;
+        }
+
+    .card {
+        border-radius: 14px;
+        transition: all .25s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 .75rem 1.5rem rgba(0, 0, 0, .08) !important;
+        }
+
+
+    /* ==========================================================
+       Billing Table
+    ========================================================== */
+
+    .table {
+        margin-bottom: 0;
+    }
+
+        .table thead th {
+            background: #f8fafc;
+            color: #374151;
+            font-weight: 700;
+            font-size: .92rem;
+            white-space: nowrap;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .table tbody tr {
+            transition: .2s ease;
+        }
+
+            .table tbody tr:hover {
+                background: #f8fbff;
+            }
+
+
+    /* ==========================================================
+       Bill Number
+    ========================================================== */
+
+    .bill-number {
+        font-weight: 700;
+        color: #2563eb;
+    }
+
+
+    /* ==========================================================
+       Patient Name
+    ========================================================== */
+
+    .patient-name {
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+
+    /* ==========================================================
+       Amounts
+    ========================================================== */
+
+    .amount {
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .paid-amount {
+        font-weight: 700;
+        color: #198754;
+    }
+
+    .balance-amount {
+        font-weight: 700;
+        color: #dc3545;
+    }
+
+    .balance-zero {
+        font-weight: 700;
+        color: #198754;
+    }
+
+
+    /* ==========================================================
+       Status Badges
+    ========================================================== */
+
+    .badge {
+        padding: .55rem .85rem;
+        border-radius: 30px;
+        font-size: .75rem;
+    }
+
+
+    /* ==========================================================
+       Action Buttons
+    ========================================================== */
+
+    .btn-group {
+        display: flex;
+        gap: .4rem;
+    }
+
+        .btn-group .btn {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            transition: .25s ease;
+        }
+
+            .btn-group .btn:hover {
+                transform: translateY(-2px);
+            }
+
+
+    /* ==========================================================
+       Empty State
+    ========================================================== */
+
+    .empty-state {
+        text-align: center;
+        padding: 70px 20px;
+    }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #cbd5e1;
+        }
+
+        .empty-state h5 {
+            margin-top: 1rem;
+            font-weight: 700;
+        }
+
+        .empty-state p {
+            color: #6b7280;
+        }
+
+
+    /* ==========================================================
+       Form Sections
+    ========================================================== */
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1f2937;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: .75rem;
+        margin-bottom: 1.25rem;
+    }
+
+        .form-section-title i {
+            color: #0d6efd;
+            font-size: 1.1rem;
+        }
+
+
+    /* ==========================================================
+       Form Labels
+    ========================================================== */
+
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: .45rem;
+    }
+
+    .required::after {
+        content: " *";
+        color: red;
+    }
+
+
+    /* ==========================================================
+       Form Inputs
+    ========================================================== */
+
+    .form-control,
+    .form-select {
+        min-height: 46px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        transition: .2s ease;
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 .15rem rgba(13, 110, 253, .15);
+        }
+
+    textarea.form-control {
+        resize: vertical;
+    }
+
+
+    /* ==========================================================
+       Readonly Inputs
+    ========================================================== */
+
+    .form-control:read-only {
+        background-color: #f8f9fa;
+        cursor: not-allowed;
+    }
+
+
+    /* ==========================================================
+       Billing Items Table
+    ========================================================== */
+
+    .billing-table {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+        background: white;
+    }
+
+        .billing-table table {
+            margin-bottom: 0;
+        }
+
+        .billing-table thead {
+            background: #f8fafc;
+        }
+
+        .billing-table th {
+            font-size: .85rem;
+            font-weight: 700;
+            color: #374151;
+            white-space: nowrap;
+        }
+
+        .billing-table th,
+        .billing-table td {
+            padding: .85rem;
+            vertical-align: middle;
+        }
+
+        .billing-table .form-control,
+        .billing-table .form-select {
+            min-height: 40px;
+            border-radius: 8px;
+        }
+
+        .billing-table .input-group-text {
+            min-height: 40px;
+            background: #f8fafc;
+            border-color: #d1d5db;
+            font-weight: 600;
+        }
+
+        .billing-table tbody tr {
+            transition: .2s ease;
+        }
+
+            .billing-table tbody tr:hover {
+                background: #f8fbff;
+            }
+
+
+    /* ==========================================================
+       Add Item Button
+    ========================================================== */
+
+    .add-item-btn {
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+
+    /* ==========================================================
+       Billing Summary
+    ========================================================== */
+
+    .billing-summary {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 24px;
+    }
+
+        .billing-summary h5 {
+            color: #1f2937;
+        }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        color: #6b7280;
+    }
+
+        .summary-item strong {
+            color: #111827;
+        }
+
+        .summary-item.total {
+            font-size: 1.15rem;
+            color: #1f2937;
+        }
+
+            .summary-item.total strong {
+                color: #0d6efd;
+                font-size: 1.25rem;
+            }
+
+
+    /* ==========================================================
+       Currency Input
+    ========================================================== */
+
+    .input-group .input-group-text {
+        border-radius: 10px 0 0 10px;
+    }
+
+    .input-group .form-control {
+        border-radius: 0 10px 10px 0;
+    }
+
+
+    /* ==========================================================
+       View Bill / Invoice Summary
+    ========================================================== */
+
+    .bill-summary-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 24px;
+    }
+
+    .bill-summary-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 2rem;
+    }
+
+        .bill-summary-header h4 {
+            font-weight: 700;
+            margin-bottom: .35rem;
+        }
+
+        .bill-summary-header small {
+            color: #6b7280;
+        }
+
+
+    /* ==========================================================
+       Payment Status
+    ========================================================== */
+
+    .payment-status {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .55rem .85rem;
+        border-radius: 30px;
+        font-size: .8rem;
+        font-weight: 600;
+    }
+
+
+    /* ==========================================================
+       Responsive
+    ========================================================== */
+
+    @media (max-width: 1200px) {
+
+        .billing-table {
+            overflow-x: auto;
+        }
+
+            .billing-table table {
+                min-width: 950px;
+            }
+    }
+
+
+    @media (max-width: 992px) {
+
+        .table {
+            min-width: 1000px;
+        }
+
+        .btn-group {
+            flex-wrap: wrap;
+        }
+
+        .billing-summary {
+            margin-top: 1rem;
+        }
+    }
+
+
+    @media (max-width: 768px) {
+
+        .icon-circle {
+            width: 50px;
+            height: 50px;
+        }
+
+            .icon-circle i {
+                font-size: 1.2rem;
+            }
+
+        .table tbody td {
+            padding: .85rem;
+        }
+
+        .btn-group .btn {
+            width: 34px;
+            height: 34px;
+        }
+
+        .form-section-title {
+            font-size: .95rem;
+        }
+
+        .billing-summary {
+            padding: 18px;
+        }
+    }
+
+
+    @media (max-width: 576px) {
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 44px;
+        }
+
+        .billing-summary {
+            padding: 16px;
+        }
+
+        .summary-item {
+            font-size: .9rem;
+        }
+    }
+</style>
+
+<PageTitle>Billing</PageTitle>
+
+<Content PageTitle="Billing">
+
+    <!-- ===================================== -->
+    <!-- Statistics Cards -->
+    <!-- ===================================== -->
+
+    <div class="row g-3 mb-4">
+
+        <!-- Total Bills -->
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                Total Bills
+                            </small>
+
+                            <h3 class="fw-bold mt-2">
+
+                                @Bills.Count
+
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-primary">
+
+                            <i class="bi bi-receipt text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Paid Bills -->
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                Paid Bills
+                            </small>
+
+                            <h3 class="fw-bold text-success mt-2">
+
+                                @Bills.Count(x => x.PaymentStatus == "Paid")
+
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-success">
+
+                            <i class="bi bi-check-circle text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Pending Bills -->
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                Pending Bills
+                            </small>
+
+                            <h3 class="fw-bold text-warning mt-2">
+
+                                @Bills.Count(x => x.PaymentStatus == "Pending")
+
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-warning">
+
+                            <i class="bi bi-clock-history text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Outstanding Amount -->
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <small class="text-muted">
+                                Outstanding Amount
+                            </small>
+
+                            <h3 class="fw-bold text-danger mt-2">
+
+                                GH₵ @Bills.Sum(x => x.Balance).ToString("N2")
+
+                            </h3>
+
+                        </div>
+
+                        <div class="icon-circle bg-danger">
+
+                            <i class="bi bi-cash-stack text-white"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================== -->
+    <!-- Toolbar -->
+    <!-- ===================================== -->
+
+    <PageToolbar
+
+        SearchPlaceholder="Search bill or patient..."
+
+        AddButtonText="Create Bill"
+
+        OnSearch="SearchBill"
+
+        OnAdd="OpenAddBill"
+
+        OnRefresh="LoadBills" />
+
+
+    <!-- ===================================== -->
+    <!-- Billing Table -->
+    <!-- ===================================== -->
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+
+                        <tr>
+
+                            <th>Bill Number</th>
+
+                            <th>Patient</th>
+
+                            <th>Bill Date</th>
+
+                            <th>Total Amount</th>
+
+                            <th>Paid Amount</th>
+
+                            <th>Balance</th>
+
+                            <th>Payment Status</th>
+
+                            <th width="280">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @if (Bills.Count == 0)
+                        {
+                            <tr>
+
+                                <td colspan="8">
+
+                                    <div class="empty-state">
+
+                                        <i class="bi bi-receipt"></i>
+
+                                        <h5>
+                                            No Bills Found
+                                        </h5>
+
+                                        <p>
+                                            Click "Create Bill" to create a new bill.
+                                        </p>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var bill in Bills)
+                            {
+                                <tr>
+
+                                    <!-- Bill Number -->
+
+                                    <td>
+
+                                        <span class="fw-bold text-primary">
+
+                                            @bill.BillNumber
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- Patient -->
+
+                                    <td>
+
+                                        <div class="fw-semibold">
+
+                                            @bill.PatientName
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- Bill Date -->
+
+                                    <td>
+
+                                        @bill.BillDate.ToString("dd MMM yyyy")
+
+                                    </td>
+
+
+                                    <!-- Total -->
+
+                                    <td>
+
+                                        <span class="fw-semibold">
+
+                                            GH₵ @bill.TotalAmount.ToString("N2")
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- Paid -->
+
+                                    <td>
+
+                                        <span class="text-success fw-semibold">
+
+                                            GH₵ @bill.PaidAmount.ToString("N2")
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- Balance -->
+
+                                    <td>
+
+                                        @if (bill.Balance > 0)
+                                        {
+                                            <span class="text-danger fw-semibold">
+
+                                                GH₵ @bill.Balance.ToString("N2")
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-success fw-semibold">
+
+                                                GH₵ 0.00
+
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- Payment Status -->
+
+                                    <td>
+
+                                        @if (bill.PaymentStatus == "Paid")
+                                        {
+                                            <span class="badge bg-success">
+
+                                                Paid
+
+                                            </span>
+                                        }
+                                        else if (bill.PaymentStatus == "Partial")
+                                        {
+                                            <span class="badge bg-warning text-dark">
+
+                                                Partial
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+
+                                                Pending
+
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- Actions -->
+
+                                    <td>
+
+                                        <div class="btn-group">
+
+                                            <!-- Edit -->
+
+                                            <button class="btn btn-outline-primary btn-sm"
+
+                                                    title="Edit Bill"
+
+                                                    @onclick="(() => EditBill(bill))">
+
+                                                <i class="bi bi-pencil-square"></i>
+
+                                            </button>
+
+
+                                            <!-- View -->
+
+                                            <button class="btn btn-outline-success btn-sm"
+
+                                                    title="View Bill"
+
+                                                    @onclick="(() => ViewBill(bill.Id))">
+
+                                                <i class="bi bi-eye"></i>
+
+                                            </button>
+
+
+                                            <!-- Payment -->
+
+                                            @if (bill.Balance > 0)
+                                            {
+                                                <button class="btn btn-outline-warning btn-sm"
+
+                                                        title="Record Payment"
+
+                                                        @onclick="(() => RecordPayment(bill.Id))">
+
+                                                    <i class="bi bi-cash-coin"></i>
+
+                                                </button>
+                                            }
+
+
+                                            <!-- Print -->
+
+                                            <button class="btn btn-outline-secondary btn-sm"
+
+                                                    title="Print Bill"
+
+                                                    @onclick="(() => PrintBill(bill.Id))">
+
+                                                <i class="bi bi-printer"></i>
+
+                                            </button>
+
+
+                                            <!-- Delete -->
+
+                                            <button class="btn btn-outline-danger btn-sm"
+
+                                                    title="Delete Bill"
+
+                                                    @onclick="(() => DeleteBill(bill.Id))">
+
+                                                <i class="bi bi-trash"></i>
+
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</Content>
+
+<AppModal
+
+    Visible="@showBillModal"
+
+    Title="@ModalTitle"
+
+    Icon="bi bi-receipt"
+
+    Size="CustomerModalSizeEnum.ExtraLarge"
+
+    SaveButtonText="@SaveButtonText"
+
+    IsSaving="@isSaving"
+
+    OnSave="SaveBill"
+
+    OnCancel="CloseBillModal">
+
+    <div class="container-fluid">
+
+        <!-- ================================= -->
+        <!-- Bill Information -->
+        <!-- ================================= -->
+
+        <div class="form-section">
+
+            <div class="form-section-title">
+
+                <i class="bi bi-receipt-cutoff"></i>
+
+                Bill Information
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-lg-4">
+
+                    <label class="form-label">
+
+                        Bill Number
+
+                    </label>
+
+                    <input class="form-control"
+                           readonly
+                           placeholder="Auto Generated" />
+
+                </div>
+
+                <div class="col-lg-4">
+
+                    <label class="form-label required">
+
+                        Bill Date
+
+                    </label>
+
+                    <input type="date"
+                           class="form-control" />
+
+                </div>
+
+                <div class="col-lg-4">
+
+                    <label class="form-label">
+
+                        Payment Status
+
+                    </label>
+
+                    <select class="form-select">
+
+                        <option value="Pending">
+                            Pending
+                        </option>
+
+                        <option value="Partial">
+                            Partial
+                        </option>
+
+                        <option value="Paid">
+                            Paid
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================= -->
+        <!-- Patient Information -->
+        <!-- ================================= -->
+
+        <div class="form-section mt-4">
+
+            <div class="form-section-title">
+
+                <i class="bi bi-person-vcard"></i>
+
+                Patient Information
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-lg-6">
+
+                    <label class="form-label required">
+
+                        Patient
+
+                    </label>
+
+                    <select class="form-select">
+
+                        <option value="">
+
+                            Select Patient
+
+                        </option>
+
+                        @foreach (var patient in Patients)
+                        {
+                            <option value="@patient.Id">
+
+                                @patient.FirstName @patient.LastName
+
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+                <div class="col-lg-3">
+
+                    <label class="form-label">
+
+                        Patient Number
+
+                    </label>
+
+                    <input class="form-control"
+
+                           readonly
+
+                           placeholder="Auto Filled" />
+
+                </div>
+
+                <div class="col-lg-3">
+
+                    <label class="form-label">
+
+                        Phone Number
+
+                    </label>
+
+                    <input class="form-control"
+
+                           readonly
+
+                           placeholder="Auto Filled" />
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================= -->
+        <!-- Related Records -->
+        <!-- ================================= -->
+
+        <div class="form-section mt-4">
+
+            <div class="form-section-title">
+
+                <i class="bi bi-link-45deg"></i>
+
+                Related Records
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-lg-6">
+
+                    <label class="form-label">
+
+                        Appointment
+
+                    </label>
+
+                    <select class="form-select">
+
+                        <option value="">
+
+                            Select Appointment
+
+                        </option>
+
+                        @foreach (var appointment in Appointments)
+                        {
+                            <option value="@appointment.Id">
+
+                                @appointment.AppointmentDate.ToString("dd MMM yyyy")
+
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+                <div class="col-lg-6">
+
+                    <label class="form-label">
+
+                        Medical Record
+
+                    </label>
+
+                    <select class="form-select">
+
+                        <option value="">
+
+                            Select Medical Record
+
+                        </option>
+
+                        @foreach (var record in MedicalRecords)
+                        {
+                            <option value="@record.Id">
+
+                                @record.RecordDate.ToString("dd MMM yyyy")
+
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================= -->
+        <!-- Billing Items -->
+        <!-- ================================= -->
+
+        <div class="form-section mt-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <div class="form-section-title border-0 mb-0 pb-0">
+
+                    <i class="bi bi-list-check"></i>
+
+                    Bill Items
+
+                </div>
+
+                <button type="button"
+
+                        class="btn btn-primary btn-sm"
+
+                        @onclick="AddBillItem">
+
+                    <i class="bi bi-plus-circle me-1"></i>
+
+                    Add Item
+
+                </button>
+
+            </div>
+
+
+            <div class="billing-table table-responsive">
+
+                <table class="table table-bordered align-middle">
+
+                    <thead>
+
+                        <tr>
+
+                            <th style="width:25%">
+
+                                Item / Service
+
+                            </th>
+
+                            <th style="width:20%">
+
+                                Description
+
+                            </th>
+
+                            <th style="width:12%">
+
+                                Quantity
+
+                            </th>
+
+                            <th style="width:15%">
+
+                                Unit Price
+
+                            </th>
+
+                            <th style="width:15%">
+
+                                Amount
+
+                            </th>
+
+                            <th style="width:70px">
+
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @if (BillItems.Count == 0)
+                        {
+                            <tr>
+
+                                <td colspan="6"
+
+                                    class="text-center text-muted py-4">
+
+                                    <i class="bi bi-receipt fs-3 d-block mb-2"></i>
+
+                                    No billing items added.
+
+                                    Click
+
+                                    <strong>
+                                        Add Item
+                                    </strong>
+
+                                    to add a charge.
+
+                                </td>
+
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in BillItems)
+                            {
+                                <tr>
+
+                                    <!-- Item -->
+
+                                    <td>
+
+                                        <select class="form-select">
+
+                                            <option value="">
+
+                                                Select Item
+
+                                            </option>
+
+                                            <option value="Consultation">
+
+                                                Consultation
+
+                                            </option>
+
+                                            <option value="Laboratory">
+
+                                                Laboratory Test
+
+                                            </option>
+
+                                            <option value="Medication">
+
+                                                Medication
+
+                                            </option>
+
+                                            <option value="Admission">
+
+                                                Admission
+
+                                            </option>
+
+                                            <option value="Other">
+
+                                                Other Service
+
+                                            </option>
+
+                                        </select>
+
+                                    </td>
+
+
+                                    <!-- Description -->
+
+                                    <td>
+
+                                        <input class="form-control"
+
+                                               placeholder="Description" />
+
+                                    </td>
+
+
+                                    <!-- Quantity -->
+
+                                    <td>
+
+                                        <input type="number"
+
+                                               class="form-control"
+
+                                               min="1"
+
+                                               value="1" />
+
+                                    </td>
+
+
+                                    <!-- Unit Price -->
+
+                                    <td>
+
+                                        <div class="input-group">
+
+                                            <span class="input-group-text">
+
+                                                GH₵
+
+                                            </span>
+
+                                            <input type="number"
+
+                                                   class="form-control"
+
+                                                   min="0"
+
+                                                   step="0.01" />
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- Amount -->
+
+                                    <td>
+
+                                        <span class="fw-bold">
+
+                                            GH₵ 0.00
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- Remove -->
+
+                                    <td class="text-center">
+
+                                        <button type="button"
+
+                                                class="btn btn-outline-danger btn-sm"
+
+                                                @onclick="(() => RemoveBillItem(item))">
+
+                                            <i class="bi bi-trash"></i>
+
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================= -->
+        <!-- Payment Information -->
+        <!-- ================================= -->
+
+        <div class="row g-4 mt-2">
+
+            <div class="col-lg-7">
+
+                <div class="form-section">
+
+                    <div class="form-section-title">
+
+                        <i class="bi bi-chat-left-text"></i>
+
+                        Notes
+
+                    </div>
+
+                    <textarea class="form-control"
+
+                              rows="5"
+
+                              placeholder="Additional notes or billing remarks"></textarea>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================= -->
+            <!-- Bill Summary -->
+            <!-- ================================= -->
+
+            <div class="col-lg-5">
+
+                <div class="billing-summary">
+
+                    <h5 class="fw-bold mb-4">
+
+                        Bill Summary
+
+                    </h5>
+
+                    <div class="summary-item">
+
+                        <span>
+
+                            Subtotal
+
+                        </span>
+
+                        <strong>
+
+                            GH₵ 0.00
+
+                        </strong>
+
+                    </div>
+
+                    <div class="summary-item">
+
+                        <span>
+
+                            Discount
+
+                        </span>
+
+                        <strong>
+
+                            GH₵ 0.00
+
+                        </strong>
+
+                    </div>
+
+                    <hr />
+
+                    <div class="summary-item total">
+
+                        <span>
+
+                            Total Amount
+
+                        </span>
+
+                        <strong>
+
+                            GH₵ 0.00
+
+                        </strong>
+
+                    </div>
+
+                    <div class="summary-item">
+
+                        <span>
+
+                            Paid Amount
+
+                        </span>
+
+                        <strong class="text-success">
+
+                            GH₵ 0.00
+
+                        </strong>
+
+                    </div>
+
+                    <div class="summary-item">
+
+                        <span>
+
+                            Balance
+
+                        </span>
+
+                        <strong class="text-danger">
+
+                            GH₵ 0.00
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</AppModal>
+
+
+@code {
+
+    #region Variables
+
+    private bool isLoading = true;
+
+    private bool isSaving = false;
+
+    private bool showBillModal = false;
+
+    private bool showViewBillModal = false;
+
+    private bool showPaymentModal = false;
+
+    private bool isEdit = false;
+
+    private string searchText = string.Empty;
+
+
+    // Currently selected bill
+
+    private MdBilling selectedBill = new();
+
+
+    // Bill being created or updated
+
+    private MdBilling billing = new();
+
+
+    // Bill items for the current bill
+
+    private List<MdBillingItem> BillItems = new();
+
+
+    // All bills
+
+    private List<MdBilling> Bills = new();
+
+
+    // Patients
+
+    private List<MdPatient> Patients = new();
+
+
+    // Appointments
+
+    private List<MdAppointment> Appointments = new();
+
+
+    // Medical Records
+
+    private List<MdMedicalRecord> MedicalRecords = new();
+
+
+    // Payment information
+
+    private decimal PaymentAmount { get; set; }
+
+    private string PaymentMethod { get; set; } = "Cash";
+
+    private string PaymentReference { get; set; } = string.Empty;
+
+
+    #endregion
+
+
+    #region Computed Properties
+
+    private string ModalTitle =>
+        isEdit
+            ? "Update Bill"
+            : "Create Bill";
+
+
+    private string SaveButtonText =>
+        isEdit
+            ? "Update Bill"
+            : "Save Bill";
+
+
+    // Calculate subtotal from all bill items
+
+    private decimal SubTotal =>
+        BillItems.Sum(x => x.Quantity * x.UnitPrice);
+
+
+    // Calculate discount
+
+    private decimal Discount =>
+        billing.Discount;
+
+
+    // Calculate total amount
+
+    private decimal TotalAmount =>
+        SubTotal - Discount;
+
+
+    // Calculate balance
+
+    private decimal Balance =>
+        Math.Max(0, TotalAmount - billing.PaidAmount);
+
+
+    #endregion
+
+
+    #region Initialization
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPage();
+    }
+
+    #endregion
+
+
+    #region Load Page
+
+    private async Task LoadPage()
+    {
+        isLoading = true;
+
+        try
+        {
+            await LoadBills();
+
+            await LoadPatients();
+
+            await LoadAppointments();
+
+            await LoadMedicalRecords();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Error loading billing page: {ex.Message}"
+            );
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    #endregion
+
+
+    #region Load Data
+
+    private async Task LoadBills()
+    {
+        try
+        {
+            // TODO:
+            // Call your billing service here.
+            //
+            // Example:
+            //
+            // Bills = await BillingService.GetAllAsync();
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Error loading bills: {ex.Message}"
+            );
+        }
+    }
+
+
+    private async Task LoadPatients()
+    {
+        try
+        {
+            // TODO:
+            // Load all patients.
+            //
+            // Example:
+            //
+            // Patients = await PatientService.GetAllAsync();
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Error loading patients: {ex.Message}"
+            );
+        }
+    }
+
+
+    private async Task LoadAppointments()
+    {
+        try
+        {
+            // TODO:
+            // Load appointments.
+            //
+            // Example:
+            //
+            // Appointments = await AppointmentService.GetAllAsync();
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Error loading appointments: {ex.Message}"
+            );
+        }
+    }
+
+
+    private async Task LoadMedicalRecords()
+    {
+        try
+        {
+            // TODO:
+            // Load medical records.
+            //
+            // Example:
+            //
+            // MedicalRecords = await MedicalRecordService.GetAllAsync();
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Error loading medical records: {ex.Message}"
+            );
+        }
+    }
+
+    #endregion
+
+
+    #region Search
+
+    private async Task SearchBill(string keyword)
+    {
+        searchText = keyword;
+
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            await LoadBills();
+
+            return;
+        }
+
+
+        // TODO:
+        // You can either search locally
+        // or call the backend search endpoint.
+
+
+        Bills = Bills
+            .Where(x =>
+                x.BillNumber
+                    .Contains(
+                        searchText,
+                        StringComparison.OrdinalIgnoreCase
+                    )
+
+                ||
+
+                x.PatientName
+                    .Contains(
+                        searchText,
+                        StringComparison.OrdinalIgnoreCase
+                    )
+            )
+            .ToList();
+    }
+
+    #endregion
+
+
+    #region Add Bill
+
+    private void OpenAddBill()
+    {
+        isEdit = false;
+
+        billing = new MdBilling
+        {
+            BillDate = DateTime.Now,
+
+            PaymentStatus = "Pending",
+
+            PaidAmount = 0,
+
+            Discount = 0
+        };
+
+
+        BillItems = new List<MdBillingItem>();
+
+
+        // Add one empty row automatically
+
+        AddBillItem();
+
+
+        showBillModal = true;
+    }
+
+    #endregion
+
+
+    #region Edit Bill
+
+    private async Task EditBill(MdBilling bill)
+    {
+        isEdit = true;
+
+        try
+        {
+            // TODO:
+            // Load the complete bill from backend.
+            //
+            // Example:
+            //
+            // billing =
+            //     await BillingService.GetByIdAsync(bill.Id);
+
+
+            // TODO:
+            // Load bill items.
+            //
+            // Example:
+            //
+            // BillItems =
+            //     await BillingService.GetItemsAsync(bill.Id);
+
+
+            showBillModal = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Error loading bill: {ex.Message}"
+            );
+        }
+    }
+
+    #endregion
+
+
+    #region Bill Items
+
+    private void AddBillItem()
+    {
+        BillItems.Add(
+            new MdBillingItem
+            {
+                Quantity = 1,
+
+                UnitPrice = 0
+            }
+        );
+    }
+
+
+    private void RemoveBillItem(
+        MdBillingItem item)
+    {
+        if (BillItems.Contains(item))
+        {
+            BillItems.Remove(item);
+        }
+    }
+
+
+    private decimal CalculateItemAmount(
+        MdBillingItem item)
+    {
+        return item.Quantity * item.UnitPrice;
+    }
+
+
+    private decimal CalculateSubTotal()
+    {
+        return BillItems.Sum(
+            x => x.Quantity * x.UnitPrice
+        );
+    }
+
+
+    private decimal CalculateTotal()
+    {
+        return Math.Max(
+            0,
+            CalculateSubTotal() - billing.Discount
+        );
+    }
+
+    #endregion
+
+
+    #region Save Bill
+
+    private async Task SaveBill()
+    {
+        isSaving = true;
+
+        try
+        {
+            // Calculate the total before saving
+
+            billing.TotalAmount =
+                CalculateTotal();
+
+
+            // Calculate the remaining balance
+
+            billing.Balance =
+                Math.Max(
+                    0,
+                    billing.TotalAmount
+                    - billing.PaidAmount
+                );
+
+
+            // Automatically determine payment status
+
+            billing.PaymentStatus =
+                CalculatePaymentStatus(
+                    billing.TotalAmount,
+                    billing.PaidAmount
+                );
+
+
+            if (isEdit)
+            {
+                // TODO:
+                // Update the bill.
+                //
+                // Example:
+                //
+                // await BillingService.UpdateAsync(
+                //     billing
+                // );
+
+
+                // TODO:
+                // Update bill items.
+                //
+                // You may delete the old items
+                // and insert the updated items.
+            }
+            else
+            {
+                // TODO:
+                // Generate bill number.
+                //
+                // Example:
+                //
+                // billing.BillNumber =
+                //     GenerateBillNumber();
+
+
+                // TODO:
+                // Save bill.
+                //
+                // Example:
+                //
+                // var billId =
+                //     await BillingService.CreateAsync(
+                //         billing
+                //     );
+
+
+                // TODO:
+                // Save all bill items.
+            }
+
+
+            await LoadBills();
+
+            CloseBillModal();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Error saving bill: {ex.Message}"
+            );
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    #endregion
+
+
+    #region Payment Status
+
+    private string CalculatePaymentStatus(
+        decimal totalAmount,
+        decimal paidAmount)
+    {
+        if (paidAmount <= 0)
+        {
+            return "Pending";
+        }
+
+
+        if (paidAmount < totalAmount)
+        {
+            return "Partial";
+        }
+
+
+        return "Paid";
+    }
+
+    #endregion
+
+
+    #region View Bill
+
+    private async Task ViewBill(string id)
+    {
+        try
+        {
+            // TODO:
+            // Load the complete bill.
+            //
+            // Example:
+            //
+            // selectedBill =
+            //     await BillingService.GetByIdAsync(id);
+
+
+            // TODO:
+            // Load bill items.
+
+
+            showViewBillModal = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Error viewing bill: {ex.Message}"
+            );
+        }
+    }
+
+
+    private void CloseViewBillModal()
+    {
+        selectedBill = new MdBilling();
+
+        showViewBillModal = false;
+    }
+
+    #endregion
+
+
+    #region Record Payment
+
+    private async Task RecordPayment(string id)
+    {
+        try
+        {
+            // TODO:
+            // Load the bill to receive payment.
+            //
+            // Example:
+            //
+            // selectedBill =
+            //     await BillingService.GetByIdAsync(id);
+
+
+            PaymentAmount = 0;
+
+            PaymentMethod = "Cash";
+
+            PaymentReference = string.Empty;
+
+
+            showPaymentModal = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Error loading payment: {ex.Message}"
+            );
+        }
+    }
+
+
+    private async Task SavePayment()
+    {
+        if (PaymentAmount <= 0)
+        {
+            return;
+        }
+
+
+        try
+        {
+            // TODO:
+            // Validate that payment does not exceed balance.
+
+
+            if (PaymentAmount >
+                selectedBill.Balance)
+            {
+                return;
+            }
+
+
+            // TODO:
+            // Create payment record.
+            //
+            // Example:
+            //
+            // await BillingService.RecordPaymentAsync(
+            //     selectedBill.Id,
+            //     PaymentAmount,
+            //     PaymentMethod,
+            //     PaymentReference
+            // );
+
+
+            // Update local values
+
+            selectedBill.PaidAmount +=
+                PaymentAmount;
+
+
+            selectedBill.Balance =
+                Math.Max(
+                    0,
+                    selectedBill.TotalAmount
+                    - selectedBill.PaidAmount
+                );
+
+
+            selectedBill.PaymentStatus =
+                CalculatePaymentStatus(
+                    selectedBill.TotalAmount,
+                    selectedBill.PaidAmount
+                );
+
+
+            showPaymentModal = false;
+
+
+            await LoadBills();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Error saving payment: {ex.Message}"
+            );
+        }
+    }
+
+
+    private void ClosePaymentModal()
+    {
+        PaymentAmount = 0;
+
+        PaymentMethod = "Cash";
+
+        PaymentReference = string.Empty;
+
+        showPaymentModal = false;
+    }
+
+    #endregion
+
+
+    #region Delete Bill
+
+    private async Task DeleteBill(string id)
+    {
+        try
+        {
+            // TODO:
+            // Show confirmation dialog.
+
+
+            // TODO:
+            // Delete bill items first.
+
+
+            // TODO:
+            // Delete bill.
+
+
+            await LoadBills();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Error deleting bill: {ex.Message}"
+            );
+        }
+    }
+
+    #endregion
+
+
+    #region Print Bill
+
+    private async Task PrintBill(string id)
+    {
+        try
+        {
+            // TODO:
+            // Load bill.
+
+
+            // TODO:
+            // Generate printable invoice.
+
+
+            // TODO:
+            // Open print dialog
+            // or generate PDF.
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Error printing bill: {ex.Message}"
+            );
+        }
+    }
+
+    #endregion
+
+
+    #region Modal
+
+    private void CloseBillModal()
+    {
+        billing = new MdBilling();
+
+        BillItems.Clear();
+
+        isEdit = false;
+
+        showBillModal = false;
+    }
+
+    #endregion
+
+
+    #region Helpers
+
+    private string GetPaymentStatusClass(
+        string status)
+    {
+        return status switch
+        {
+            "Paid" => "bg-success",
+
+            "Partial" => "bg-warning text-dark",
+
+            "Pending" => "bg-danger",
+
+            _ => "bg-secondary"
+        };
+    }
+
+
+    private string FormatCurrency(
+        decimal amount)
+    {
+        return $"GH₵ {amount:N2}";
+    }
+
+
+    private string FormatDate(
+        DateTime date)
+    {
+        return date.ToString(
+            "dd MMM yyyy"
+        );
+    }
+
+    #endregion
+
+} *@
